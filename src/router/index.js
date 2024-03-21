@@ -17,8 +17,25 @@ const router = createRouter({
           path:"ticketResult",
           name:"ticketResult",
           component:()=>import("@/views/ticketResult.vue")
+        },
+        {
+          path:"flightQuery",
+          name:"flightQuery",
+          component:()=>import("@/views/flightQuery/index.vue")
         }
       ]
+    },
+    {
+      path:"/login",
+      component:()=>import("@/views/login/index.vue")
+    },
+    {
+      path:"/register",
+      component:()=>import("@/views/register/index.vue")
+    },
+    {
+      path:"/myorder",
+      component:()=>import("@/views/myorder/index.vue")
     }
   ]
 })
