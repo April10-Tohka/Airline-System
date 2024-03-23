@@ -23,12 +23,8 @@ import  Carousel from "@/components/Carousel.vue"
 import searchBox from "@/components/searchBox.vue";
 import {ref} from "vue";
 import {useRouter} from "vue-router";
-import hot1 from "@/assets/img/recommend/hot-1.jpg"
-import hot2 from "@/assets/img/recommend/hot-2.jpg"
-import hot3 from "@/assets/img/recommend/hot-3.jpg"
-import hot4 from "@/assets/img/recommend/hot-4.jpg"
-/*TODO: 1.如果图片为网络链接地址是否可行？
-2.同时数据通过后端获取
+/*TODO:
+    2.同时数据通过后端获取
 */
 const flights=ref([
     {
@@ -39,7 +35,7 @@ const flights=ref([
         "startCity": "南宁",
         "arriveCity": "上海",
         "ticketType": "经济舱",
-        "img":hot1
+        "img":"https://mp-b31258f4-397c-40ca-87bd-b790755e323b.cdn.bspapp.com/Airline-System/img/img/recommend/hot-1.jpg"
     },
     {
         "flightId": "ZH2210",
@@ -49,7 +45,7 @@ const flights=ref([
         "startCity": "北京",
         "arriveCity": "南宁",
         "ticketType": "头等舱",
-        "img":hot2
+        "img":"https://mp-b31258f4-397c-40ca-87bd-b790755e323b.cdn.bspapp.com/Airline-System/img/img/recommend/hot-2.jpg"
     },
     {
         "flightId": "CA1234",
@@ -59,7 +55,7 @@ const flights=ref([
         "startCity": "上海",
         "arriveCity": "成都",
         "ticketType": "头等舱",
-        "img":hot3
+        "img":"https://mp-b31258f4-397c-40ca-87bd-b790755e323b.cdn.bspapp.com/Airline-System/img/img/recommend/hot-3.jpg"
     },
     {
         "flightId": "CA1000",
@@ -69,7 +65,7 @@ const flights=ref([
         "startCity": "三亚",
         "arriveCity": "上海",
         "ticketType": "头等舱",
-        "img":hot4
+        "img":"https://mp-b31258f4-397c-40ca-87bd-b790755e323b.cdn.bspapp.com/Airline-System/img/img/recommend/hot-4.jpg"
     }
 ]);
 const router=useRouter();
