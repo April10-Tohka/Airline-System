@@ -19,18 +19,28 @@
                     <div class="filter_item_toggle_entry mr-16">
                         <el-checkbox label="直飞"></el-checkbox>
                     </div>
-                    <div class="filter_item_trans_count mr-16">
-                        <el-dropdown>
-                            <el-button >
-                                经停<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </el-button>
-                        </el-dropdown>
-                    </div>
+<!--                    <div class="filter_item_trans_count mr-16">-->
+<!--                        <el-dropdown >-->
+<!--                            <el-button >-->
+<!--                                经停<el-icon class="el-icon&#45;&#45;right"><arrow-down /></el-icon>-->
+<!--                            </el-button>-->
+
+<!--                        </el-dropdown>-->
+<!--                    </div>-->
                     <div class="filter_item_airline mr-16">
-                        <el-dropdown>
+                        <el-dropdown trigger="click">
                             <el-button >
                                 航空公司<el-icon class="el-icon--right"><arrow-down /></el-icon>
                             </el-button>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item>Action 1</el-dropdown-item>
+                                    <el-dropdown-item>Action 2</el-dropdown-item>
+                                    <el-dropdown-item>Action 3</el-dropdown-item>
+                                    <el-dropdown-item disabled>Action 4</el-dropdown-item>
+                                    <el-dropdown-item divided>Action 5</el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
                         </el-dropdown>
                     </div>
                     <div class="filter_item_time mr-16">
@@ -361,6 +371,7 @@ function toggleClass(index)
 {
     currentIndex.value=index;
 }
+
 </script>
 
 
@@ -393,7 +404,7 @@ function toggleClass(index)
 .sortbar
 {
     display: flex;
-    margin-left: 200px;
+    margin-left: 320px;
     div
     {
         padding: 7px 8px;
