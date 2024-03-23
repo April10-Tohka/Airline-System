@@ -14,33 +14,48 @@
           飞机订票系统
         </h1>
       </el-menu-item>
-      <el-menu-item index="/">首页</el-menu-item>
-      <el-sub-menu index="1">
-        <template #title>机票预订</template>
-        <el-menu-item index="/ticket">国内机票</el-menu-item>
-      </el-sub-menu>
-      <el-sub-menu index="2">
-        <template #title>自助服务</template>
-        <el-menu-item index="/flight">航班动态</el-menu-item>
-      </el-sub-menu>
-      <el-sub-menu index="3">
-        <template #title>会员服务</template>
-        <el-menu-item index="/OrderInfo">我的订单</el-menu-item>
-        <el-menu-item index="/userInfo">个人信息</el-menu-item>
-      </el-sub-menu>
-<!--        TODO: 调整登录注册的位置及显示图标-->
-        <el-menu-item index="/register"   >
-            <i class="el-icon-edit"></i>注册
-        </el-menu-item>
-        <el-menu-item index="/login" style="float: right">
-            <i class="el-icon-s-custom"></i>登录
-        </el-menu-item>
+        <el-menu-item index="/">首页</el-menu-item>
+        <el-menu-item index="/ticket">机票预订</el-menu-item>
+        <el-menu-item index="flightQuery">航班动态</el-menu-item>
+        <div class="btn-wrap">
+            <div class="loginbtn">
+                <button style="display: flex;align-items: center" @click="tologin">
+                    <svg t="1711006340745"  viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4236" width="32" height="32"><path d="M896 774.4c8-16 16-27.2 24-43.2 3.2-3.2 3.2-8 3.2-11.2 3.2-11.2 11.2-24 16-35.2 3.2-3.2 3.2-8 3.2-16 3.2-11.2 8-24 11.2-30.4 0-3.2 3.2-11.2 3.2-16 3.2-11.2 3.2-24 8-35.2 0-3.2 3.2-11.2 3.2-16 3.2-16 3.2-35.2 3.2-51.2 0-257.6-211.2-467.2-467.2-467.2S38.4 262.4 38.4 520c0 16 0 35.2 3.2 51.2 0 3.2 0 11.2 3.2 16 0 11.2 3.2 24 3.2 35.2 0 3.2 3.2 11.2 3.2 16 3.2 11.2 8 24 11.2 30.4 0 3.2 3.2 8 3.2 16 3.2 11.2 8 24 16 35.2 0 3.2 3.2 8 3.2 11.2 8 16 16 27.2 24 43.2 81.6 128 225.6 214.4 390.4 214.4S809.6 902.4 896 774.4c-3.2 0-3.2 0 0 0zM502.4 275.2c92.8 0 171.2 78.4 171.2 171.2s-78.4 171.2-171.2 171.2-171.2-78.4-171.2-171.2 78.4-171.2 171.2-171.2zM217.6 812.8c51.2-113.6 160-187.2 284.8-187.2S736 699.2 787.2 812.8c-73.6 70.4-176 116.8-284.8 116.8-108.8-3.2-211.2-46.4-284.8-116.8z" fill="#ffffff" p-id="4237"></path></svg>
+                    <span style="margin-left: 3px">登录</span>
+                </button>
+            </div>
+            <div class="registerbtn">
+                <button @click="toregister">
+                    <span>注册</span>
+                </button>
+            </div>
+            <div class="order">
+                <button style="display: flex;align-items: center" @click="tomyorder">
+                    <svg t="1711007536135" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5285" width="32" height="32"><path d="M821.333333 256a32 32 0 0 1 64 0v565.333333c0 64.8-52.533333 117.333333-117.333333 117.333334H256c-64.8 0-117.333333-52.533333-117.333333-117.333334V202.666667c0-64.8 52.533333-117.333333 117.333333-117.333334h597.333333a32 32 0 0 1 0 64H256a53.333333 53.333333 0 0 0-53.333333 53.333334v618.666666a53.333333 53.333333 0 0 0 53.333333 53.333334h512a53.333333 53.333333 0 0 0 53.333333-53.333334V256zM341.333333 437.333333a32 32 0 0 1 0-64h341.333334a32 32 0 0 1 0 64H341.333333z m0 170.666667a32 32 0 0 1 0-64h213.333334a32 32 0 0 1 0 64H341.333333z" fill="#ffffff" p-id="5286"></path></svg>
+                    <span>我的订单</span>
+                </button>
+            </div>
+        </div>
     </el-menu>
+
   </div>
 </template>
 
-<script>
-
+<script setup>
+import {useRouter} from "vue-router";
+const router=useRouter();
+function tologin()
+{
+    router.push("/login");
+}
+function toregister()
+{
+    router.push("/register");
+}
+function tomyorder()
+{
+    router.push("/myorder");
+}
 </script>
 
 <style scoped>
@@ -48,5 +63,40 @@
   color:#ffffff;
   font-size: 20px;
 }
+.btn-wrap{
+    display: flex;
+    position: absolute;
+    right: 0;
+    height: 100%;
+    margin-right: 30px;
+    align-items: center;
+    span
+    {
+        font-size: 14px;
+    }
+    .registerbtn
+    {
+        margin-left: 20px;
+        padding-bottom: 3px;
+    }
+    button
+    {
+        cursor: pointer;
+        border: none;
+        outline: none;
+        text-decoration: none;
+        line-height: 1;
+        background-color: inherit;
+        color: #ffffff;
 
+    }
+    button:hover
+    {
+        color: #0086f6;
+    }
+    .order
+    {
+        margin-left: 20px;
+    }
+}
 </style>
