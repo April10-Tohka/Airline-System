@@ -22,6 +22,29 @@ const router = createRouter({
           path:"flightQuery",
           name:"flightQuery",
           component:()=>import("@/views/flightQuery/index.vue")
+        },
+        {
+          path:"admin",
+          component:()=>import("@/views/admin/index.vue"),//显示后台管理的layout组件
+          children:[
+            {
+              path:'flightManage',
+              component:()=>import("@/views/admin/flightManage/index.vue"),
+              meta:{
+                title:"航班管理"
+              }
+            },
+            {
+              path:'ticketManage',
+              component:()=>import("@/views/admin/ticketManage/index.vue"),
+              meta:{
+                title:"机票管理"
+              }
+            }
+          ],
+          meta:{
+            title:"后台管理"
+          }
         }
       ]
     },
