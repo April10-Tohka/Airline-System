@@ -6,24 +6,43 @@ const flightForm=ref({
     flightNo:"",//航班号
     airdate:""//出发日期
 });
+const verifyResult=ref(true);//校验航班号结果
+//飞机航班号校验规则
 const descriptor={
     flightNo:{
         type:"string",
         required:true,
         asyncValidator:(rule,value)=>{
-            const regex = /^[A-Z]{2,3}\d{3,4}$/i;
-            console.log("value,",value);
-            console.log("校验：",regex.test(value));
-        /*
-        * TODO:根据校验效果
-        *       true：
-        *       false：返回并提示 请输入正确航班号
-        * */
+            return new Promise((resolve, reject)=>{
+                const regex = /^[A-Z]{2,3}\d{3,4}$/i;//校验航班号的正则表达式（不区分大小写)
+                console.log("校验规则内收到的value:",value);
+                if(regex.test(value))
+                {
+                    resolve();
+                }
+                else
+                {
+                    reject("校验失败")
+                }
+            })
         }
     }
 }
-
-const form=ref(null);//表单组件
+//查询航班动态
+function QueryFlight()
+{
+    const validator = new Schema(descriptor);
+    validator.validate(flightForm.value).then(value=>{
+        console.log("校验成功就会收到的value:",value);
+        //TODO:调用接口获取数据,并根据查询结果显示 查询成功/查询失败页面,并传递数据
+        verifyResult.value= true;
+        value.flightNo=value.flightNo.toUpperCase();
+        HistoryItems.value.add(value.flightNo);
+    }).catch(({errors,fields})=>{
+        console.log("校验失败errors,fields:",errors,fields);
+        verifyResult.value=false;
+    })
+}
 onMounted(()=>{
     getNowTime(flightForm);
 })
@@ -46,52 +65,30 @@ const disabledDate = (time) => {
     const diff = Math.abs((today - time) / (1000 * 3600 * 24)); // 计算日期差值
     return diff > 3  || diff === 0;
 }
-function test(event)
+
+const HistoryItems=ref(new Set());//查询航班号历史记录
+// 点击历史记录项显示在输入框中
+function clickHistoryItem(flightNo)
 {
-    event.preventDefault();
-    const validator = new Schema(descriptor);
-    validator.validate(flightForm.value).then((isOK)=>{
-        console.log("isok",isOK);
-    }).catch(error=>{
-        console.log("error",error);
-    })
+    console.log("flightNo:",flightNo);
+    flightForm.value.flightNo=flightNo;
+}
+//清空历史记录
+function clearHistoryItems()
+{
+    HistoryItems.value=new Set();
 }
 </script>
 
 <template>
     <div class="search-box">
-<!--        <div class="flightForm">-->
-<!--            <el-form inline :model="flightForm"  ref="form">-->
-<!--                <el-form-item prop="flightNO">-->
-<!--                    <el-input style="width: 500px" placeholder="请填写航班号，如MU1234" v-model="flightForm.flightNo"></el-input>-->
-<!--                </el-form-item>-->
-<!--                <el-form-item>-->
-<!--                    <el-date-picker-->
-<!--                        v-model="flightForm.airdate"-->
-<!--                        type="date"-->
-<!--                        placeholder="出发日期"-->
-<!--                        value-format="YYYY-MM-DD"-->
-<!--                        format="YYYY/MM/DD"-->
-<!--                        :default-value="new Date()"-->
-<!--                        :disabled-date="disabledDate"-->
-<!--                    />-->
-<!--                </el-form-item>-->
-<!--                <el-form-item>-->
-<!--                    <button class="search" @click="test($event)">-->
-<!--                        <span class="icon">-->
-<!--                            <svg t="1711011277441" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6509" width="32" height="32"><path d="M469.333333 106.666667c200.298667 0 362.666667 162.368 362.666667 362.666666 0 86.08-29.994667 165.162667-80.085333 227.349334a20.949333 20.949333 0 0 1 10.901333 5.802666l135.765333 135.765334a21.333333 21.333333 0 0 1 0 30.165333l-30.165333 30.165333a21.333333 21.333333 0 0 1-30.165333 0l-135.765334-135.765333a21.226667 21.226667 0 0 1-5.845333-10.901333A360.96 360.96 0 0 1 469.333333 832c-200.298667 0-362.666667-162.368-362.666666-362.666667S269.034667 106.666667 469.333333 106.666667z m0 85.333333C316.16 192 192 316.16 192 469.333333s124.16 277.333333 277.333333 277.333334 277.333333-124.16 277.333334-277.333334S622.506667 192 469.333333 192z" fill="#ffffff" p-id="6510"></path></svg>-->
-<!--                        </span>-->
-<!--                        <span style="position: relative;top: -9px">搜索</span>-->
-<!--                    </button>-->
-<!--                </el-form-item>-->
-<!--            </el-form>-->
-<!--        </div>-->
         <div class="search-container">
             <div class="search-info-container">
-                <div class="search-selectors-info">
+                <div :class="{'search-selectors-info':true,'search-selectors-info-wrong':!verifyResult}">
                     <div class="search-selectors-fno">
                         <input placeholder="请填写航班号，如MU1234" v-model="flightForm.flightNo">
                     </div>
+                    <div class="wrong-hint" v-if="!verifyResult">请输入正确航班号</div>
                 </div>
                 <div class="search-date-picker">
 <!--                    TODO：需要修改date-picker的样式-->
@@ -108,12 +105,17 @@ function test(event)
             </div>
 
             <div class="search-history">
-                <!--                expand:放置搜索历史-->
-                <div class="search-history-container"></div>
-                <div class="clear-history"></div>
+                <div class="search-history-container">
+                    <div class="search-history-item"
+                         v-for="(item,index) in HistoryItems" :key="index" @click="clickHistoryItem(item)">
+                        {{item}}
+                    </div>
+                </div>
+                <div class="clear-history" v-if="HistoryItems.size" @click="clearHistoryItems">
+                    清除历史记录
+                </div>
             </div>
-<!--            TODO:查询航班动态动作-->
-            <div class="search-button">
+            <div class="search-button" @click="QueryFlight">
                 <div class="magnify-glass">
                     <svg t="1711011277441" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6509" width="32" height="32"><path d="M469.333333 106.666667c200.298667 0 362.666667 162.368 362.666667 362.666666 0 86.08-29.994667 165.162667-80.085333 227.349334a20.949333 20.949333 0 0 1 10.901333 5.802666l135.765333 135.765334a21.333333 21.333333 0 0 1 0 30.165333l-30.165333 30.165333a21.333333 21.333333 0 0 1-30.165333 0l-135.765334-135.765333a21.226667 21.226667 0 0 1-5.845333-10.901333A360.96 360.96 0 0 1 469.333333 832c-200.298667 0-362.666667-162.368-362.666666-362.666667S269.034667 106.666667 469.333333 106.666667z m0 85.333333C316.16 192 192 316.16 192 469.333333s124.16 277.333333 277.333333 277.333334 277.333333-124.16 277.333334-277.333334S622.506667 192 469.333333 192z" fill="#ffffff" p-id="6510"></path></svg>
                 </div>
@@ -165,6 +167,47 @@ function test(event)
                 outline: none;
             }
         }
+        .wrong-hint
+        {
+            font-size: 12px;
+            color: #f5190a;
+            line-height: 16px;
+            border-radius: 7px;
+            height: 30px;
+            border: 1px solid rgba(245,25,10,0.6);
+            padding: 5px 8px 9px;
+            background-color: #fef3f3;
+            margin-bottom: 4px;
+            position: absolute;
+            top: -15px;
+            text-align: center;
+            min-width: 112px;
+            box-sizing: border-box;
+        }
+        .wrong-hint:before,.wrong-hint:after
+        {
+            content: "";
+            width: 0;
+            height: 0;
+            position: absolute;
+            left: 10px;
+        }
+        .wrong-hint:before
+        {
+            bottom: -12px;
+            border: 6px solid transparent;
+            border-top-color: rgba(245,25,10,0.6);
+        }
+        .wrong-hint:after
+        {
+            bottom: -11px;
+            border: 6px solid transparent;
+            border-top-color: #fef3f3;
+        }
+    }
+    .search-selectors-info-wrong
+    {
+        border-top: 2px solid #f5190a;
     }
     .search-date-picker
     {
@@ -181,6 +224,28 @@ function test(event)
         white-space: nowrap;
         display: flex;
         flex-direction: row;
+        .search-history-container
+        {
+            display: flex;
+            flex-direction: row;
+            .search-history-item
+            {
+                padding: 7px 8px;
+                cursor: pointer;
+            }
+            .search-history-item:hover
+            {
+                color: #0086f6;
+                background-color: rgba(0,134,246,0.05);
+                border-radius: 4px;
+            }
+        }
+        .clear-history
+        {
+            padding: 7px 8px;
+            color: #0086f6;
+            cursor: pointer;
+        }
     }
     .search-button
     {
@@ -197,22 +262,6 @@ function test(event)
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        /*
-        button.search
-        {
-            font-size: 18px;
-            line-height: 22px;
-            color: #ffffff;
-            width: 124px;
-            border-radius: 6px;
-            height: 64px;
-            background-image: linear-gradient(270deg, #f70, #ffa50a);
-            box-shadow: 0 4px 16px 0 rgba(255,102,0,.32);
-            outline: none;
-            border: none;
-        }
-
-         */
         .magnify-glass
         {
             margin-right: 7px;
