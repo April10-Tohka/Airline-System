@@ -1,5 +1,5 @@
 import axios from "axios";
-const baseURL="https://jsonplaceholder.typicode.com/";
+const baseURL="http://localhost:3000";
 const server=axios.create({
     baseURL,
     timeout:5000
