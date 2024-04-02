@@ -2,6 +2,17 @@
 import flightQuery from "./components/flightQuery/index.vue"
 import flightQuerySuccess from "./components/flightQuerySuccess/index.vue"
 import flightQueryFailure from "./components/flightQueryFailure/index.vue"
+import {emitter} from "@/utils/mitt.js";
+import {onMounted, ref} from "vue";
+onMounted(()=>{
+    emitter.on('flightQuery',(value)=>{
+        console.log("触发flightQuery事件",value);
+        queryResult.value=value.result;
+        flightDetail.value=value.flightDetail
+    })
+})
+let queryResult=ref(undefined);//是否查询成功
+let flightDetail=ref({})//航班信息
 </script>
 
 <template>
@@ -11,8 +22,8 @@ import flightQueryFailure from "./components/flightQueryFailure/index.vue"
     </div>
     <div class="container">
         <flight-query></flight-query>
-        <flight-query-success></flight-query-success>
-        <flight-query-failure></flight-query-failure>
+        <flight-query-success v-if="queryResult" :flightDetail="flightDetail"></flight-query-success>
+        <flight-query-failure v-else></flight-query-failure>
     </div>
 </div>
 </template>

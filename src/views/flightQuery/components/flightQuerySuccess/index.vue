@@ -1,15 +1,16 @@
 <script setup>
-
+const props=defineProps(['flightDetail']);
+console.log("查看props",props.flightDetail);
 </script>
 
 <template>
-    <div class="flight-detail-container">
+    <div class="flight-detail-container" >
         <div class="flight-detail-header">
             <div class="airline-info">
                 <div class="logo"><img src="../../../../assets/img/airlines/3U.png" alt="" ></div>
                 <div class="flightNo">
-                    <span>东方航空</span>
-                    <span>MU725</span>
+                    <span>{{props.flightDetail.airlineCompanyName}}</span>
+                    <span>{{props.flightDetail.flightNo}}</span>
                 </div>
             </div>
             <div class="flight-status">航班计划</div>
@@ -18,15 +19,15 @@
         <div class="flight-detail-body">
             <div class="wrapper">
                 <div class="city">
-                    <div>上海</div>
-                    <div>香港</div>
+                    <div>{{props.flightDetail.departCity}}</div>
+                    <div>{{props.flightDetail.arriveCity}}</div>
                 </div>
                 <div class="time">
-                    <div class="depart-time">21:00</div>
+                    <div class="depart-time">{{props.flightDetail.departTime}}</div>
                     <div class="middle-line">
                         <img src="../../../../assets/img/component/fly.png" alt="">
                     </div>
-                    <div class="arrive-time">23:44</div>
+                    <div class="arrive-time">{{ props.flightDetail.arriveTime }}</div>
                 </div>
                 <div class="small-tips-wrapper">
                     <el-tooltip :show-arrow="false" effect="light">
@@ -66,6 +67,7 @@
     line-height: 18px;
     cursor: pointer;
     margin-top: 74px;
+    margin-bottom: 30px;
     .flight-detail-header
     {
         background: linear-gradient(-90deg, #f2fbf8, #fff);

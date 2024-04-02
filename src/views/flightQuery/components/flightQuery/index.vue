@@ -1,6 +1,8 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import Schema from 'async-validator';
+import {getFlightDetail} from "@/api/flight.js"
+import {emitter} from "@/utils/mitt.js";
 // 表单数据
 const flightForm=ref({
     flightNo:"",//航班号
@@ -14,7 +16,7 @@ const descriptor={
         required:true,
         asyncValidator:(rule,value)=>{
             return new Promise((resolve, reject)=>{
-                const regex = /^[A-Z]{2,3}\d{3,4}$/i;//校验航班号的正则表达式（不区分大小写)
+                const regex = /^[A-Za-z0-9]{1,2}\d{3,5}$/i;//校验航班号的正则表达式（不区分大小写)
                 console.log("校验规则内收到的value:",value);
                 if(regex.test(value))
                 {
@@ -34,7 +36,25 @@ function QueryFlight()
     const validator = new Schema(descriptor);
     validator.validate(flightForm.value).then(value=>{
         console.log("校验成功就会收到的value:",value);
-        //TODO:调用接口获取数据,并根据查询结果显示 查询成功/查询失败页面,并传递数据
+        getFlightDetail(flightForm.value.flightNo).then(res=>{
+            let data=res.data.data;//返回的数据
+            console.log(data);
+            if(data)
+            {
+                console.log("不为空，说明查询成功");
+                emitter.emit('flightQuery',{
+                    result:true,
+                    flightDetail:data
+                })
+            }
+            else
+            {
+                console.log("为空，说明查询失败") ;
+                emitter.emit('flightQuery',{
+                    result:false
+                });
+            }
+        })
         verifyResult.value= true;
         value.flightNo=value.flightNo.toUpperCase();
         HistoryItems.value.add(value.flightNo);
