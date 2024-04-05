@@ -10,8 +10,8 @@
         <div class="el-card" @click="ToTicketResult(flight.departCity,flight.arriveCity,flight.flightDate)">
           <img :src="flight.img" alt />
           <span class="adr">{{flight.departCity}} - {{flight.arriveCity}}</span>
-          <span>{{flight.ticketType}}单程含税</span>
-          <span>￥{{flight.ticketPrice}}起</span>
+          <span>经济舱单程含税</span>
+          <span>￥{{flight.price}}起</span>
         </div>
       </el-col>
     </el-row>
@@ -24,52 +24,8 @@ import  Carousel from "@/components/Carousel.vue"
 import searchBox from "@/components/searchBox.vue";
 import {ref,onBeforeMount} from "vue";
 import {useRouter} from "vue-router";
-import {getColumnData} from "@/api/flight.js"
-/*TODO:
-    2.同时数据通过后端获取
-*/
-const flights=ref([
-    {
-        "flightNo": "HU1007",
-        "flightDate": "2022-09-09",
-        "index": 1,
-        "ticketPrice": 1899.0,
-        "departCity": "南宁",
-        "arriveCity": "上海",
-        "ticketType": "经济舱",
-        "img":"https://mp-b31258f4-397c-40ca-87bd-b790755e323b.cdn.bspapp.com/Airline-System/img/img/recommend/hot-1.jpg"
-    },
-    {
-        "flightNo": "ZH2210",
-        "flightDate": "2022-09-08",
-        "index": 2,
-        "ticketPrice": 8909.0,
-        "departCity": "北京",
-        "arriveCity": "南宁",
-        "ticketType": "头等舱",
-        "img":"https://mp-b31258f4-397c-40ca-87bd-b790755e323b.cdn.bspapp.com/Airline-System/img/img/recommend/hot-2.jpg"
-    },
-    {
-        "flightNo": "CA1234",
-        "flightDate": "2022-09-20",
-        "index": 3,
-        "ticketPrice": 2222.0,
-        "departCity": "上海",
-        "arriveCity": "成都",
-        "ticketType": "头等舱",
-        "img":"https://mp-b31258f4-397c-40ca-87bd-b790755e323b.cdn.bspapp.com/Airline-System/img/img/recommend/hot-3.jpg"
-    },
-    {
-        "flightNo": "CA1000",
-        "flightDate": "2022-09-09",
-        "index": 4,
-        "ticketPrice": 1999.0,
-        "departCity": "三亚",
-        "arriveCity": "上海",
-        "ticketType": "头等舱",
-        "img":"https://mp-b31258f4-397c-40ca-87bd-b790755e323b.cdn.bspapp.com/Airline-System/img/img/recommend/hot-4.jpg"
-    }
-]);
+import {getColumnData,getHotFlight} from "@/api/flight.js"
+const flights=ref([]);//热门航线
 const router=useRouter();
 function ToTicketResult(departCity,arriveCity,flightDate)
 {
@@ -101,7 +57,15 @@ function getDataToLocalStorage()
 onBeforeMount(()=>{
     //首页挂载前获取一些数据,(城市、航空公司、飞机机型、热门航线）
     getDataToLocalStorage();
-
+    getHotFlight().then(res=>{
+        let {data}=res.data;
+        for(let i=0;i<4;i++)
+        {
+            data[i].img=`https://mp-b31258f4-397c-40ca-87bd-b790755e323b.cdn.bspapp.com/Airline-System/img/img/recommend/hot-${i+1}.jpg`
+        }
+        console.log("获取到的热门航线",data);
+        flights.value=data;
+    })
 })
 </script>
 
