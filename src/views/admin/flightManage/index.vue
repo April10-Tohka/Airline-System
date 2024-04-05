@@ -1,21 +1,42 @@
 <script setup>
 import {useRoute} from "vue-router";
 import {ref, onMounted, reactive, watch, toRaw} from "vue";
-import {getAllFlights,getCityPort,getFlightDetail} from "@/api/flight.js"
+import {getAllFlights,getCityPort,getFlightDetail,addFlight} from "@/api/flight.js"
 import {emitter} from "@/utils/mitt.js";
 import { useFlightDataStore} from "@/stores/flightData.js"
 import {storeToRefs} from "pinia";
+import { ElMessage } from 'element-plus'
 const route=useRoute();
 console.log("flightManage route:",route);
 //表格显示航班数据
 const tableData=ref([])
-// TODO:分页查询获取数据，并完成分页组件
-onMounted(()=>{
-    getAllFlights().then(res=>{
+//分页对象
+let pagination={
+    currentPage:1,
+    total:undefined
+}
+function  changePage(page)
+{
+    console.log(page);
+    pagination.currentPage=page;
+    getAllFlightsToTable(pagination.currentPage);
+}
+//获取所有航班数据显示在表格中
+function getAllFlightsToTable(page)
+{
+    getAllFlights(page).then(res=>{
         console.log("调用接口获取数据",res);
         tableData.value=res.data.data;
+        //分页组件数据
+        pagination=res.data.pagination;
+        console.log("pagination:",pagination);
     })
+}
+const flightForm=ref(null);//录入航班信息表单实例
+onMounted(()=>{
+    getAllFlightsToTable(pagination.currentPage);
 })
+const isEdit=ref(false);
 function  handleCommand(command,row)
 {
     console.log(command,row);
@@ -23,6 +44,7 @@ function  handleCommand(command,row)
     {
         PopupTitle.value="修改航班信息";
         PopupVisible.value=true;
+        isEdit.value=true;
         // //TODO:如何数据回显
         // getFlightDetail(row.flightNo).then(res=>{
         //     console.log("getFlightDetail返回的data:",res.data.data);
@@ -63,9 +85,11 @@ function showPopup()
     PopupVisible.value=true;
     PopupTitle.value='录入航班信息';
 }
+//关闭弹窗
 function  closePopup()
 {
     PopupVisible.value=false;
+    //重置表单
     flightDetails.value={
         flightNo:"",//航班号
         airlineCompanyName:"",//航空公司
@@ -81,6 +105,30 @@ function  closePopup()
         remainingCount:undefined,//余票数量
         price:undefined,//售价
     };
+    isEdit.value=false;
+}
+// 弹窗内确认按钮逻辑
+function confirmBtn()
+{
+    //校验表单
+    flightForm.value.validate((valid)=>{
+        if(valid)
+        {
+            console.log("表单校验通过");
+            addFlight(flightDetails)
+                .then(res=>{
+                    console.log("看看是否录入航班",res);
+                    //提示录入航班信息成功
+                    ElMessage({message:res.data.message,type:'success'})
+                    closePopup();
+                    getAllFlightsToTable();
+                })
+                .catch(error=>{
+                    console.log("录入失败,",error);
+                    ElMessage({message:'重复录入，该航班信息已经存在',type:'warning'})
+                })
+        }
+    })
 }
 const FlightDataStore=useFlightDataStore();//使用FlightDataStore
 let {cityList,aircraftTypeList,airlineCompanyNameList}=storeToRefs(FlightDataStore);//解构数据
@@ -101,6 +149,22 @@ const flightDetails=ref({
     remainingCount:undefined,//余票数量
     price:undefined,//售价
 })
+//飞机航班号校验规则
+const rules={
+    flightNo:[{required:true,message:"请输入正确的航班号",pattern:/^[A-Za-z0-9]{1,2}\d{3,5}$/i,trigger:"blur"}],
+    airlineCompanyName:[{required:true,message:"请选择航空公司",trigger:"change"}],
+    aircraftType:[{required:true,message:"请选择飞机机型",trigger:"change"}],
+    departCity: [{required:true,message:"请选择起飞城市",trigger:"change"}],
+    departPortName: [{required:true,message:"请选择起飞机场",trigger:"change"}],
+    departTime: [{required:true,message:"请选择起飞时间",trigger:"change"}],
+    arriveCity:[{required:true,message:"请选择目的地",trigger:"change"}],
+    arrivePortName:[{required:true,message:"请选择到达机场",trigger:"change"}],
+    arriveTime: [{required:true,message:"请选择到达时间",trigger:"change"}],
+    seatCount: [{required:true,message:"请输入座位数量",trigger:"blur"}],
+    bookedCount: [{required:true,message:"请输入订票数量",trigger:"blur"}],
+    remainingCount: [{required:true,message:"请输入余票数量",trigger:"blur"}],
+    price:[{required:true,message:"请输入售价",trigger:"blur"}]
+}
 const departPort=ref([]);//出发机场
 const arrivePort=ref([]);//到达机场
 watch(()=>flightDetails.value.departCity,(city)=>{
@@ -186,74 +250,74 @@ watch(()=>flightDetails.value.arriveCity,(city)=>{
             </el-table>
         </div>
         <div class="footer">
-<!--            放置分页组件-->
-            <el-pagination layout="prev, pager, next,sizes,total" :total="990" />
+            <el-pagination layout="prev, pager, next,total" :total="parseInt( pagination.total)" :current-page="parseInt(pagination.currentPage)"
+            @current-change="changePage"/>
         </div>
     </div>
 <!--    航班信息弹窗-->
     <el-dialog v-model="PopupVisible" :title="PopupTitle" @close="closePopup">
-<!--        TODO:转换表单内的时间-->
-        <el-form :model="flightDetails">
-            <el-form-item label="航班号" >
+        <el-form :model="flightDetails" :rules="rules" ref="flightForm">
+            <el-form-item prop="flightNo" label="航班号" >
                 <el-input v-model="flightDetails.flightNo"></el-input>
             </el-form-item>
-            <el-form-item label="航空公司">
+            <el-form-item prop="airlineCompanyName" label="航空公司">
                 <el-select v-model="flightDetails.airlineCompanyName">
                     <el-option v-for="(item,index) in airlineCompanyNameList" :key="index" :value="item" :label="item"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="机型">
+            <el-form-item prop="aircraftType" label="机型">
                 <el-select v-model="flightDetails.aircraftType">
                     <el-option v-for="(item,index) in aircraftTypeList" :key="index" :value="item" :label="item"></el-option>
                 </el-select>
             </el-form-item>
             <div class="depart">
-                <el-form-item label="出发地"  class="flex-1" >
+                <el-form-item label="出发地"  class="flex-1" prop="departCity" >
                     <el-select v-model="flightDetails.departCity">
                         <el-option v-for="(item,index) in cityList" :key="index" :value="item" :label="item"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="出发机场" class="flex-1">
+                <el-form-item label="出发机场" class="flex-1" prop="departPortName">
                     <el-select v-model="flightDetails.departPortName">
                         <el-option v-for="(item,index) in departPort" :key="index" :value="item" :label="item"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="出发时间" class="flex-1">
-                    <el-time-picker v-model="flightDetails.departTime"></el-time-picker>
+                <el-form-item label="出发时间" class="flex-1" prop="departTime">
+                    <el-time-picker v-model="flightDetails.departTime" value-format="HH:mm" format="HH:mm"></el-time-picker>
                 </el-form-item>
             </div>
             <div class="arrive">
-                <el-form-item label="目的地" class="flex-1">
+                <el-form-item label="目的地" class="flex-1" prop="arriveCity">
                     <el-select v-model="flightDetails.arriveCity">
                         <el-option v-for="(item,index) in cityList" :key="index" :value="item" :label="item"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="到达机场" class="flex-1">
+                <el-form-item label="到达机场" class="flex-1" prop="arrivePortName">
                     <el-select v-model="flightDetails.arrivePortName">
                         <el-option v-for="(item,index) in arrivePort" :key="index" :value="item" :label="item"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="到达时间" class="flex-1">
-                    <el-time-picker v-model="flightDetails.arriveTime"></el-time-picker >
+                <el-form-item label="到达时间" class="flex-1" prop="arriveTime">
+                    <el-time-picker v-model="flightDetails.arriveTime" value-format="HH:mm" format="HH:mm"></el-time-picker >
                 </el-form-item>
             </div>
             <div class="ticket-sale">
-                <el-form-item label="座位数量" class="flex-1">
-                    <el-input v-model="flightDetails.seatCount"></el-input>
+                <el-form-item label="座位数量" class="flex-1" prop="seatCount">
+                    <el-input v-model="flightDetails.seatCount" style="width: 173px"></el-input>
                 </el-form-item>
-<!--                todo:订票数量和余票数量只有‘编辑’状态下显示-->
-                <el-form-item label="订票数量" class="flex-1">
-                    <el-input v-model="flightDetails.bookedCount"></el-input>
-                </el-form-item>
-                <el-form-item label="余票数量" class="flex-1">
-                    <el-input v-model="flightDetails.remainingCount"></el-input>
-                </el-form-item>
+                <div v-if="isEdit">
+                    <el-form-item label="订票数量" class="flex-1" prop="bookedCount">
+                        <el-input v-model="flightDetails.bookedCount"></el-input>
+                    </el-form-item>
+                    <el-form-item label="余票数量" class="flex-1" prop="remainingCount">
+                        <el-input v-model="flightDetails.remainingCount"></el-input>
+                    </el-form-item>
+                </div>
             </div>
-            <el-form-item label="售价">
-                <el-input v-model="flightDetails.price"></el-input>
+            <el-form-item prop="price" label="售价">
+                <el-input v-model="flightDetails.price" style="width: 100px;"></el-input>
             </el-form-item>
             <div class="form-action">
-                <el-button type="primary" size="large" >确定</el-button>
+                <el-button type="primary" size="large" @click="confirmBtn">确定</el-button>
                 <el-button size="large" @click="closePopup">取消</el-button>
             </div>
         </el-form>
@@ -368,5 +432,13 @@ watch(()=>flightDetails.value.arriveCity,(city)=>{
 .flex-1
 {
     flex: 1;
+}
+.footer
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    margin-top: 15px;
+    margin-right: 25px;
 }
 </style>
