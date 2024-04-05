@@ -10,7 +10,7 @@
                     {{flight.arriveCity}}
                 </div>
                 <div style="font-size: 18px;margin-left: 10px;margin-top: 5px;color: #333">
-                    {{getFormattedDate(flight.flightDate)}}
+                    {{getFormattedDate(new Date())}}
                 </div>
             </li>
             <li class="ticketCardPos">
