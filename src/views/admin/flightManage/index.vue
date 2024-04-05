@@ -1,11 +1,12 @@
 <script setup>
 import {useRoute} from "vue-router";
-import {ref, onMounted, reactive, watch, toRaw} from "vue";
-import {getAllFlights,getCityPort,getFlightDetail,addFlight} from "@/api/flight.js"
+import {onMounted, ref, watch} from "vue";
+import {addFlight, getAllFlights, getCityPort, getFlightDetail, updateFlight} from "@/api/flight.js"
 import {emitter} from "@/utils/mitt.js";
-import { useFlightDataStore} from "@/stores/flightData.js"
+import {useFlightDataStore} from "@/stores/flightData.js"
 import {storeToRefs} from "pinia";
-import { ElMessage } from 'element-plus'
+import {ElMessage} from 'element-plus'
+
 const route=useRoute();
 console.log("flightManage route:",route);
 //表格显示航班数据
@@ -36,7 +37,7 @@ const flightForm=ref(null);//录入航班信息表单实例
 onMounted(()=>{
     getAllFlightsToTable(pagination.currentPage);
 })
-const isEdit=ref(false);
+const isEdit=ref(false);//是否处于编辑状态
 function  handleCommand(command,row)
 {
     console.log(command,row);
@@ -45,11 +46,10 @@ function  handleCommand(command,row)
         PopupTitle.value="修改航班信息";
         PopupVisible.value=true;
         isEdit.value=true;
-        // //TODO:如何数据回显
-        // getFlightDetail(row.flightNo).then(res=>{
-        //     console.log("getFlightDetail返回的data:",res.data.data);
-        //     flightDetails.value=res.data.data;
-        // })
+        getFlightDetail(row.flightNo).then(res=>{
+            console.log("getFlightDetail返回的data:",res.data.data);
+            flightDetails.value=res.data.data;
+        })
     }
 }
 const isCollapse=ref(false);//是否折叠
@@ -60,6 +60,7 @@ function collapseAside()
     isCollapse.value=!isCollapse.value
     emitter.emit('collapseAside',isCollapse.value);
 }
+const clearSpan=ref(null);//清除搜索框内容DOM元素
 const searchText=ref("");//搜索内容
 const searchBoxWidth=ref("160px");//搜索框宽度
 const isFocusInput=ref(false);//搜索框是否聚焦
@@ -69,6 +70,8 @@ function expandInput()
     console.log("focus input");
     searchBoxWidth.value="300px";
     isFocusInput.value=true;
+    //搜索框聚焦时，根据内容是否为空来相应显示
+    clearSpan.value.style.display=searchText.value?'block':'none';
 }
 //处理搜索框失去焦点
 function shrinkInput()
@@ -76,6 +79,40 @@ function shrinkInput()
     console.log("blur input");
     searchBoxWidth.value='160px';
     isFocusInput.value=false;
+    //搜索框失去焦点时，隐藏清除搜索框内容DOM元素
+    clearSpan.value.style.display='none';
+}
+//搜索航班号
+function flightQuery()
+{
+    console.log("searchtext:",searchText.value);
+    if(searchText.value===""){
+        ElMessage({message:"请输入航班号",type:'warning'});
+        return;
+    }
+    const regex = /^[A-Za-z0-9]{1,2}\d{3,5}$/i;//校验航班号的正则表达式（不区分大小写)
+    if(!(regex.test(searchText.value)))
+    {
+        console.log("校验不通过");
+        return;
+    }
+    searchText.value=searchText.value.toUpperCase();
+    getFlightDetail(searchText.value)
+        .then(res=>{
+            console.log("查询成功",res.data.data);
+            tableData.value=new Array(res.data.data);
+        })
+        .catch(error=>{
+            console.log("查询失败",error);
+        })
+}
+//清空搜索框内容
+function  clearBtn()
+{
+    console.log("清除搜索框内容")
+    searchText.value=undefined;
+    //清空搜索框后，获取全部航班数据
+    getAllFlightsToTable(1);
 }
 const PopupVisible=ref(false);//是否显示‘添加’弹窗
 let PopupTitle=ref("");//弹窗标题
@@ -115,18 +152,38 @@ function confirmBtn()
         if(valid)
         {
             console.log("表单校验通过");
-            addFlight(flightDetails)
-                .then(res=>{
-                    console.log("看看是否录入航班",res);
-                    //提示录入航班信息成功
-                    ElMessage({message:res.data.message,type:'success'})
-                    closePopup();
-                    getAllFlightsToTable();
-                })
-                .catch(error=>{
-                    console.log("录入失败,",error);
-                    ElMessage({message:'重复录入，该航班信息已经存在',type:'warning'})
-                })
+            //判断编辑状态还是添加状态
+            if(isEdit.value)
+            {
+                console.log("编辑状态下点击确认，查看flightDetail",flightDetails);
+                updateFlight(flightDetails.value)
+                    .then(res=>{
+                        console.log("调用updateFlight，",res);
+                        ElMessage({message:res.data.message,type:'success'});
+                        closePopup();
+                        getAllFlightsToTable(pagination.currentPage);
+                    })
+                    .catch(error=>{
+                        console.log("修改航班信息失败",error);
+                        ElMessage({message:"修改航班信息失败",type:'warning'});
+                    })
+            }
+            else
+            {
+                console.log("不是编辑状态，为添加状态.调用addFlight");
+                addFlight(flightDetails)
+                    .then(res=>{
+                        console.log("录入航班成功",res);
+                        //提示录入航班信息成功
+                        ElMessage({message:res.data.message,type:'success'})
+                        closePopup();//关闭弹窗
+                        getAllFlightsToTable(pagination.currentPage);//获取表格航班数据
+                    })
+                    .catch(error=>{
+                        console.log("录入失败,",error);
+                        ElMessage({message:'重复录入，该航班信息已经存在',type:'warning'})
+                    })
+            }
         }
     })
 }
@@ -184,7 +241,7 @@ watch(()=>flightDetails.value.arriveCity,(city)=>{
 </script>
 
 <template>
-<!--    TODO:完成增删改查操作-->
+<!--    TODO:优化增删改查操作代码-->
     <div>
 <!--        BUG: 折叠侧边栏后，出现滚动条-x，然后再展开侧边栏添加按钮没有显示在视口-->
         <div class="collapse-container" @click="collapseAside">
@@ -200,7 +257,8 @@ watch(()=>flightDetails.value.arriveCity,(city)=>{
         <div class="controls-container">
             <div :style="{width:searchBoxWidth}" :class="{'search-box':true,'focus-input':isFocusInput}">
                 <input type="text" role="searchbox" placeholder="请输入航班号" v-model="searchText" @focus="expandInput" @blur="shrinkInput">
-                <div class="search-icon">
+                <span class="clear-span" ref="clearSpan" v-show="searchText?true:false" @mousedown="clearBtn" >&#10006;</span>
+                <div class="search-icon" @mousedown="flightQuery">
                     <svg t="1711509313783" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4322" width="24" height="24"><path d="M512 858.3168c-194.816 0-352-166.2464-352-370.4832S317.184 117.3504 512 117.3504s352 166.2464 352 370.4832-157.184 370.4832-352 370.4832z m0-64c158.6688 0 288-136.8576 288-306.4832 0-169.6768-129.3312-306.4832-288-306.4832S224 318.1568 224 487.8336c0 169.6256 129.3312 306.4832 288 306.4832zM717.312 799.9488a32 32 0 0 1 46.4896-43.9808l91.4432 96.7168a32 32 0 0 1-46.4896 43.9808l-91.4432-96.768z" fill="#ffffff" p-id="4323"></path></svg>
                 </div>
             </div>
@@ -381,7 +439,14 @@ watch(()=>flightDetails.value.arriveCity,(city)=>{
             height: 100%;
             padding: 3px 10px;
             box-sizing: border-box;
-
+        }
+        .clear-span
+        {
+            cursor: pointer;
+            color: #888;
+            margin-right: 10px;
+            position: relative;
+            top: -1px;
         }
     }
     .add-button
