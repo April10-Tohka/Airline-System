@@ -4,10 +4,10 @@ import request from "@/utils/request.js";
  * 获取所有航班信息
  * @returns {*}
  */
-export function getAllFlights()
+export function getAllFlights(page)
 {
     return request({
-        url:'/api/getAllFlights',
+        url:`/api/getAllFlights?page=${page}`,
         method:"get"
     })
 }
@@ -66,3 +66,26 @@ export function  getFlightTickets(departCity,arriveCity)
     })
 }
 
+/**
+ * 获取热门航线
+ * @returns {*}
+ */
+export function  getHotFlight()
+{
+    return request({
+        url:"/api/getHotFlight",
+        method:"get"
+    })
+}
+
+export function addFlight(data)
+{
+    return request({
+        url:'/api/flight',
+        method:"post",
+        data,
+        headers:{
+            'Content-Type':'application/json'
+        },
+    })
+}
