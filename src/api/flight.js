@@ -78,6 +78,11 @@ export function  getHotFlight()
     })
 }
 
+/**
+ * 新增航班信息
+ * @param data 航班信息
+ * @returns {*}
+ */
 export function addFlight(data)
 {
     return request({
@@ -87,5 +92,20 @@ export function addFlight(data)
         headers:{
             'Content-Type':'application/json'
         },
+    })
+}
+
+/**
+ * 修改航班信息
+ * @param flightDetails 修改的航班信息
+ * @returns {*}
+ */
+export function updateFlight(flightDetails)
+{
+    return request({
+        url:`/api/flight/${flightDetails.flightNo}`,
+        method:'put',
+        data:flightDetails,
+        timeout:100000
     })
 }
