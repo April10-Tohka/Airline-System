@@ -114,12 +114,7 @@
             </div>
         </div>
     </div>
-    <el-dialog v-model="showOrder" width="90%">
-<!--        TODO:页面设计布局-->
-        <div class="container">
-            123123
-        </div>
-    </el-dialog>
+    <BookConfirmation v-model="showOrder" :ticket="selectTicket"></BookConfirmation>
 </template>
 
 <script setup>
@@ -128,6 +123,7 @@ import {useRoute} from "vue-router";
 import {getFormattedDate} from "@/utils/dateFormat.js";
 import {getFlightTickets} from "@/api/flight.js";
 import { ElLoading } from 'element-plus'
+import BookConfirmation from "./components/BookConfirmation.vue"
 const route=useRoute();
 const flight=route.query;//飞机航线
 const sortbarItems=[{label:"低价优先",id:"1"},{label: "起飞时间早-晚",id:"2"}];//排序项
@@ -145,13 +141,14 @@ function toggleClass(index)
     currentIndex.value=index;
 }
 let showOrder=ref(false);//展示订单弹窗
+let selectTicket=ref(null);
 /**
  * 订票
  * @param ticket 飞机票
  */
 function bookTicket(ticket)
 {
-    console.log("飞机订票！",ticket);
+    selectTicket.value=ticket;
     const loading = ElLoading.service({
         lock: true,
         text: 'Loading',
