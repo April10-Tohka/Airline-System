@@ -7,7 +7,7 @@
   <div class="hot">
     <el-row :gutter="30">
       <el-col :span="6" v-for="(flight,index) in flights" :key="index">
-        <div class="el-card" @click="ToTicketResult(flight.departCity,flight.arriveCity,flight.flightDate)">
+        <div class="el-card" @click="ToTicket(flight.departCity,flight.arriveCity,flight.flightDate)">
           <img :src="flight.img" alt />
           <span class="adr">{{flight.departCity}} - {{flight.arriveCity}}</span>
           <span>经济舱单程含税</span>
@@ -27,9 +27,9 @@ import {useRouter} from "vue-router";
 import {getColumnData,getHotFlight} from "@/api/flight.js"
 const flights=ref([]);//热门航线
 const router=useRouter();
-function ToTicketResult(departCity,arriveCity,flightDate)
+function ToTicket(departCity,arriveCity,flightDate)
 {
-    router.push({path:"/ticketResult",query:{departCity,arriveCity,flightDate}});
+    router.push({path:"/ticket",query:{departCity,arriveCity,flightDate}});
 }
 //获取数据并本地存储
 function getDataToLocalStorage()
