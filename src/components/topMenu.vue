@@ -15,7 +15,7 @@
         </h1>
       </el-menu-item>
         <el-menu-item index="/home">首页</el-menu-item>
-        <el-menu-item index="/ticket">机票预订</el-menu-item>
+<!--        <el-menu-item index="/ticket">机票预订</el-menu-item>-->
         <el-menu-item index="/flightQuery">航班动态</el-menu-item>
         <div class="btn-wrap">
             <div class="loginbtn">
