@@ -68,7 +68,7 @@
                     <div class="flight-box">
                         <div class="flight-airline">
                             <div class="airline-logo">
-                                <img src="../assets/img/airlines/3U.png" alt="" width="48px" height="48px">
+                                <img src="../../assets/img/airlines/3U.png" alt="" width="48px" height="48px">
                             </div>
                             <ul>
                                 <li class="airline-name"><span>{{ticket.airlineCompanyName}}</span></li>
@@ -82,7 +82,7 @@
                                 <div class="airport">{{ ticket.departPortName }}</div>
                             </div>
                             <div class="arrow-box">
-                                <img src="../assets/img/component/to.png" alt="" width="120px" >
+                                <img src="../../assets/img/component/to.png" alt="" width="120px" >
                             </div>
                             <div class="arrive-box">
                                 <div class="time">{{ ticket.arriveTime }}</div>
@@ -106,7 +106,7 @@
                                 <span style="font-size: 32px" >{{ ticket.price }}</span>
                             </div>
                             <div class="flight-action">
-                                <button>订票</button>
+                                <button @click="bookTicket(ticket)">订票</button>
                             </div>
                         </div>
                     </div>
@@ -114,6 +114,12 @@
             </div>
         </div>
     </div>
+    <el-dialog v-model="showOrder" width="90%">
+<!--        TODO:页面设计布局-->
+        <div class="container">
+            123123
+        </div>
+    </el-dialog>
 </template>
 
 <script setup>
@@ -121,7 +127,7 @@ import {onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
 import {getFormattedDate} from "@/utils/dateFormat.js";
 import {getFlightTickets} from "@/api/flight.js";
-
+import { ElLoading } from 'element-plus'
 const route=useRoute();
 const flight=route.query;//飞机航线
 const sortbarItems=[{label:"低价优先",id:"1"},{label: "起飞时间早-晚",id:"2"}];//排序项
@@ -138,7 +144,24 @@ function toggleClass(index)
 {
     currentIndex.value=index;
 }
-
+let showOrder=ref(false);//展示订单弹窗
+/**
+ * 订票
+ * @param ticket 飞机票
+ */
+function bookTicket(ticket)
+{
+    console.log("飞机订票！",ticket);
+    const loading = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+    })
+    setTimeout(() => {
+        loading.close();
+        showOrder.value=true;
+    }, 200)
+}
 </script>
 
 

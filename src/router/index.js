@@ -16,7 +16,7 @@ const router = createRouter({
         {
           path:"ticket",
           name:"ticket",
-          component:()=>import("@/views/ticket.vue")
+          component:()=>import("@/views/ticket/index.vue")
         },
         {
           path:"flightQuery",
