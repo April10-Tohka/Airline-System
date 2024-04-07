@@ -9,11 +9,11 @@
         label-width="100px"
         class="searchForm"
       >
-        <el-form-item label="出发城市" prop="departure">
-          <el-input v-model="searchForm.departure"></el-input>
+        <el-form-item label="出发城市" prop="departCity">
+          <el-input v-model="searchForm.departCity"></el-input>
         </el-form-item>
-        <el-form-item label="到达城市" prop="destination">
-          <el-input v-model="searchForm.destination"></el-input>
+        <el-form-item label="到达城市" prop="arriveCity">
+          <el-input v-model="searchForm.arriveCity"></el-input>
         </el-form-item>
         <el-form-item label="日期" prop="airDate">
           <el-date-picker
@@ -33,26 +33,28 @@
 
 <script setup>
 import {reactive, ref} from "vue";
-
+import {useRouter} from "vue-router";
+const router=useRouter();
 //表单校验规则
 const rules=reactive({
-    departure: [
+    departCity: [
         { required: true, message: "请输入出发城市", trigger: "blur" }
     ],
-    destination: [
+    arriveCity: [
         { required: true, message: "请输入到达城市", trigger: "blur" }
     ]
 })
 // 表单数据
 const searchForm=ref({
-    departure: "",//出发地
-    destination: "",//目的地
+    departCity: "",//出发地
+    arriveCity: "",//目的地
     airDate: "",//日期
 })
 //提交表单按钮
 function submitForm()
 {
-    alert("提交表单");
+    console.log("提交表单,",searchForm.value);
+    router.push({path:"/ticket",query:searchForm.value});
     /**
      * TODO: 1.校验表单数据
      *       2. 调用接口
