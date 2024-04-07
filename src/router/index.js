@@ -45,6 +45,10 @@ const router = createRouter({
           meta:{
             title:"后台管理"
           }
+        },
+        {
+          path:"/order",
+          component:()=>import("@/views/order/index.vue")
         }
       ]
     },
@@ -55,10 +59,6 @@ const router = createRouter({
     {
       path:"/register",
       component:()=>import("@/views/register/index.vue")
-    },
-    {
-      path:"/myorder",
-      component:()=>import("@/views/myorder/index.vue")
     }
   ]
 })

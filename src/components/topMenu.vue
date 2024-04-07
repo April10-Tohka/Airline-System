@@ -54,7 +54,7 @@ function toregister()
 }
 function tomyorder()
 {
-    router.push("/myorder");
+    router.push("/order");
 }
 </script>
 
