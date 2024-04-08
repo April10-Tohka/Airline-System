@@ -7,3 +7,16 @@ export function getFormattedDate(time) {
 
     return `${month}月${day}日 ${dayOfWeek}`;
 }
+
+/**
+ * 返回 2024-04-01格式的时间
+ * @returns {string}
+ */
+export function getNowDate()
+{
+    const date=new Date();
+    const year=date.getFullYear();
+    const month=('0'+(date.getMonth()+1)).slice(-2);
+    const day=('0'+date.getDate()).slice(-2);
+    return `${year}-${month}-${day}`
+}
