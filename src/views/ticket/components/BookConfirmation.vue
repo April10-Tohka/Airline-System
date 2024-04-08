@@ -1,14 +1,20 @@
 <script setup>
 import {ref} from "vue";
-import {getFormattedDate} from "@/utils/dateFormat.js"
+import {getFormattedDate,getNowDate} from "@/utils/dateFormat.js"
+import Schema from "async-validator"
+import {ElMessage} from "element-plus";
+import {createOrder} from "@/api/order.js"
+import { ElLoading } from 'element-plus'
+import { ElNotification } from 'element-plus'
 const model=defineModel()
+const props=defineProps(['ticket'])//航班信息
+
 function closeDialog()
 {
     //清空乘机人信息
     passenger.value={name:"", identity:"", phone:""};
 }
 let currentIndex=ref(undefined);
-const props=defineProps(['ticket'])
 const passenger=ref({
     name:"",
     identity:"",
@@ -67,6 +73,86 @@ function blurInput(event)
     }
     currentIndex.value=0;
 }
+
+//校验规则
+const descriptor={
+    name:{
+        type:'string',
+        required:true
+    },
+    identity: {
+        type:"string",
+        required:true,
+        asyncValidator:(rules,value)=>{
+            return new Promise((resolve, reject)=>{
+                console.log("校验身份证，value:",value);
+                const chineseIDCardRegex = /^[1-9]\d{5}(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dxX]$/;
+                if(chineseIDCardRegex.test(value))
+                {
+                    console.log("校验身份证通过!");
+                    resolve("success")
+                }
+                else
+                {
+                    reject("校验身份证不通过");
+                }
+            })
+        }
+    },
+    phone: {
+        type:'number',
+        required:true,
+        asyncValidator:(rules,value)=>{
+            return new Promise((resolve, reject)=>{
+                console.log("校验手机号，value:",value);
+                const chinesePhoneNumberRegex = /^(?:(?:\+|00)86)?1[3-9]\d{9}$/;
+                if(chinesePhoneNumberRegex.test(value))
+                {
+                    console.log("校验手机号通过!");
+                    resolve("success")
+                }
+                else
+                {
+                    reject("校验手机号不通过");
+                }
+            })
+        }
+    }
+}
+const validator = new Schema(descriptor);
+/**
+ * 点击下一步按钮 生成订单
+ */
+function nextStep()
+{
+    validator.validate(passenger.value)
+        .then(()=>{
+            console.log("校验乘机人信息通过:");
+            createOrder({...passenger.value,...props.ticket,bookDate:getNowDate()})
+                .then((res)=>{
+                    //加载动画后关闭窗口
+                    const loading = ElLoading.service({
+                        lock: true,
+                        text: '正在下单中',
+                        background: 'rgba(0, 0, 0, 0.7)',
+                    })
+                    setTimeout(() => {
+                        loading.close();
+                        model.value=false;
+                        ElNotification({
+                            title: '下单成功',
+                            message: '前往 <strong>我的订单</strong> 完成支付，即可预订成功',
+                            type: 'success',
+                            dangerouslyUseHTMLString: true,
+                        })
+                    }, 1000)
+
+                })
+        })
+        .catch(error=>{
+            ElMessage({message:"请重新填写乘机人信息",type:'error'})
+        })
+}
 </script>
 
 <template>
@@ -115,7 +201,7 @@ function blurInput(event)
                     </div>
                 </div>
                 <div class="action-box">
-                    <button>下一步</button>
+                    <button @click="nextStep">下一步</button>
                 </div>
                 <div class="foot-tip">
                     <h4>点击下一步表示您已阅读并同意以下内容：</h4>
