@@ -85,7 +85,6 @@ const descriptor={
         required:true,
         asyncValidator:(rules,value)=>{
             return new Promise((resolve, reject)=>{
-                console.log("校验身份证，value:",value);
                 const chineseIDCardRegex = /^[1-9]\d{5}(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dxX]$/;
                 if(chineseIDCardRegex.test(value))
                 {
@@ -104,7 +103,6 @@ const descriptor={
         required:true,
         asyncValidator:(rules,value)=>{
             return new Promise((resolve, reject)=>{
-                console.log("校验手机号，value:",value);
                 const chinesePhoneNumberRegex = /^(?:(?:\+|00)86)?1[3-9]\d{9}$/;
                 if(chinesePhoneNumberRegex.test(value))
                 {
@@ -128,7 +126,7 @@ function nextStep()
     validator.validate(passenger.value)
         .then(()=>{
             console.log("校验乘机人信息通过:");
-            createOrder({...passenger.value,...props.ticket,bookDate:getNowDate()})
+            createOrder({...passenger.value,...props.ticket})
                 .then((res)=>{
                     //加载动画后关闭窗口
                     const loading = ElLoading.service({
