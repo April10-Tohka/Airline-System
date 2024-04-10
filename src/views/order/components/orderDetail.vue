@@ -1,7 +1,79 @@
 <script setup>
-import {ref} from "vue";
-
+import {computed, ref} from "vue";
+import {updateOrder} from "@/api/order.js"
+import { ElLoading , ElMessageBox } from 'element-plus'
 let model=defineModel()
+const props=defineProps(['orderInformation']);
+const emit=defineEmits(['update:order-status']);
+console.log("orderDetail收到的props：",props.orderInformation);
+//支付截止时间
+const paymentDeadline=computed(()=>{
+    let timeParts = props.orderInformation.bookTime.split(':');
+    let hours = parseInt(timeParts[0], 10);
+    let minutes = parseInt(timeParts[1], 10);
+    minutes += 15;
+    if (minutes >= 60) {
+        hours += 1;
+        minutes -= 60;
+    }
+    hours = hours % 24; // 如果小时超过24，取模得到实际小时数
+    return hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
+})
+
+/**
+ * 处理取消订单
+ * @param status
+ * @param orderID
+ */
+function cancelOrder(status,orderID)
+{
+    console.log(status,orderID);
+    const loading = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+    })
+    setTimeout(() => {
+        loading.close();
+    }, 200)
+    ElMessageBox.confirm(
+        '确认取消订单吗?',
+        '取消提示',
+        {
+            confirmButtonText: '继续取消',
+            cancelButtonText: '再想想',
+            center: true,
+        }
+    )
+        /**
+         * TRACK:这里成为了我理解promise的难题,我想的是点击了ElMessageBox.alert的知道了，才关闭orderDetail
+         * chatgpt说了没有人处理ElMessageBox.alert,所以外面的then不会等待ElMessageBox.alert,所以就会立即执行
+         */
+        .then(()=>{
+            return  updateOrder({status,orderID})
+                .then(res=>{
+                    console.log("更新订单成功",res);
+                    return  ElMessageBox.alert('订单已取消成功','取消提示',{confirmButtonText:"知道了",})
+                        .then(()=>{
+                            console.log("点击了知道了才会输出");
+                            //通知父组件修改props
+                            emit('update:order-status', {status,orderID});
+                            //关闭orderDetail
+                            model.value=false;
+                        })
+                })
+        })
+}
+
+/**
+ * 处理去支付
+ * @param status
+ * @param orderID
+ */
+function handlePaymentClick(status,orderID)
+{
+    console.log(status,orderID);
+}
 </script>
 
 <template>
@@ -11,17 +83,19 @@ let model=defineModel()
                 <div class="order-status">
                     <div class="order-status-card">
                         <div class="order-status-title">
-                            <div class="status">待支付</div>
+                            <div class="status">
+                                {{ props.orderInformation.status===0?"待支付":props.orderInformation.status===1?"已支付":"已取消" }}
+                            </div>
                             <div class="order-id">
-                                订单号: &nbsp;3113219308
+                                订单号: &nbsp;{{ props.orderInformation?.orderID }}
                             </div>
                         </div>
                         <div class="order-status-subtitle">
-                            请在最晚支付时间15:35前支付，完成支付才能锁定价格
+                            请在最晚支付时间<strong> {{ paymentDeadline }} </strong>前支付，完成支付才能锁定价格
                         </div>
                         <div class="button-group">
-                            <button>去支付</button>
-                            <button>取消订单</button>
+                            <button @click="handlePaymentClick(1,props.orderInformation.orderID)">去支付</button>
+                            <button @click="cancelOrder(-1,props.orderInformation.orderID)">取消订单</button>
                             <button>我要报销</button>
                         </div>
                         <div class="prompt"></div>
@@ -30,10 +104,10 @@ let model=defineModel()
                 <div class="passenger">
                     <div class="passenger-title">出行人信息</div>
                     <div class="passenger-card">
-                        <div class="name">张三</div>
+                        <div class="name">{{ props.orderInformation.name }}</div>
                         <div class="identity">
                             <span>身份证:</span>
-                            <span>151251312312312312312</span>
+                            <span>{{ props.orderInformation.identity }}</span>
                         </div>
                     </div>
                 </div>
@@ -42,7 +116,7 @@ let model=defineModel()
                     <div class="contactInfo-card">
                         <div class="phone">
                             <span>手机号:</span>
-                            <span>13712345678</span>
+                            <span>{{ props.orderInformation.phone }}</span>
                         </div>
                     </div>
                 </div>
@@ -53,10 +127,10 @@ let model=defineModel()
                     <div class="payment-wrapper">
                         <div class="amount">
                             <h5>下单金额</h5>
-                            <p>04-07 15:20</p>
+                            <p>{{ props.orderInformation.bookDate }} {{ props.orderInformation.bookTime }}</p>
                         </div>
                         <div class="price">
-                            <dfn>¥</dfn>572
+                            <dfn>¥</dfn>{{ props.orderInformation.price }}
                         </div>
                     </div>
                 </div>
