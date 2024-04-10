@@ -9,8 +9,8 @@ export function getFormattedDate(time) {
 }
 
 /**
- * 返回 2024-04-01格式的时间
- * @returns {string}
+ *
+ * @returns {string} 返回 2024-04-01格式的时间
  */
 export function getNowDate()
 {
