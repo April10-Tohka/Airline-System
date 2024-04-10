@@ -38,3 +38,17 @@ export function createOrder(data)
         data
     })
 }
+
+/**
+ * 更新订单状态
+ * @param data 数据，包括订单号orderID，新的订单状态status
+ * @returns {*}
+ */
+export  function updateOrder(data)
+{
+    return request({
+        url:`/api/orders/${data.orderID}`,
+        method:"put",
+        data
+    })
+}
