@@ -1,11 +1,34 @@
 <script setup>
 import orderDetail from "./components/orderDetail.vue"
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
+import {getOrders} from "@/api/order.js"
 let openOrderDetail=ref(false);//是否打开订单详情页面
 //打开订单详情
-function openOrderDetailPage()
+function openOrderDetailPage(orderDetail)
 {
     openOrderDetail.value=true;
+    orderInformation.value=orderDetail;
+}
+const orderList=ref();//订单列表
+const orderInformation=ref();//选中的某个订单的数据
+onMounted(()=>{
+    getOrders()
+        .then(res=>{
+            console.log("获取订单列表",res);
+            orderList.value=res.data?.data;
+        })
+})
+/**
+ * 处理子组件通知父组件修改props
+ */
+function updateOrderStatus(updateOrder)
+{
+    console.log("子组件通知父组件时，触发update:order-information事件调用,data",updateOrder);
+    //TODO:怎么修改对应order？
+    console.log("orderList:",orderList);
+    const index= orderList.value.findIndex(item=>item.orderID===updateOrder.orderID);
+    console.log("findIndex返回的索引:",index);
+    orderList.value[index].status=updateOrder.status;
 }
 </script>
 
@@ -13,41 +36,43 @@ function openOrderDetailPage()
 <div class="container">
     <div class="order-list">
         <div class="body">
-            <div class="order-item">
+            <div class="order-item" v-for="item in orderList" :key="item.orderID" ref="a">
                 <h3>
                     <div style="margin-right: 20px">
                         <span>订单号:</span>
-                        <span class="order-id">3154138767</span>
+                        <span class="order-id">{{item.orderID}}</span>
                     </div>
                     <div>
                         <span>预定日期:&nbsp;&nbsp;</span>
-                        <span>2024-04-07</span>
+                        <span>{{ item.bookDate }}</span>
                     </div>
                 </h3>
-                <div class="item" @click="openOrderDetailPage">
+                <div class="item" @click="openOrderDetailPage(item)">
                     <div class="order-info">
                         <div class="title mb-6">
-                            <span>北京 —— 广州</span>
+                            <span>{{item.departCity}} —— {{item.arriveCity}}</span>
                         </div>
                         <div class="txt mb-6">
-                            <span>出发时间: 21:30 至 01:15 MU6311</span>
+                            <span>出发时间: {{ item.departTime }} 至 {{ item.arriveTime }} {{ item.flightNo }}</span>
                         </div>
                         <div class="txt mb-6">
-                            <span>出行人: 张三</span>
+                            <span>出行人: {{ item.name }}</span>
                         </div>
                     </div>
                     <div class="order-price-group">
                         <div class="order-price-status">
-                            <span>待支付</span>
+                            <span :style="{'color':item.status===-1?'#AAAAAA':'#0086f6'}">
+                                {{ item.status===0?"待支付":item.status===1?"已支付":"已取消" }}
+                            </span>
                         </div>
-                        <div class="order-price-num"><span>¥711</span></div>
+                        <div class="order-price-num"><span>¥{{item.price}}</span></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<order-detail v-model="openOrderDetail"></order-detail>
+<order-detail v-model="openOrderDetail" :order-information="orderInformation" @update:order-status="updateOrderStatus"></order-detail>
 </template>
 
 <style scoped>
@@ -127,6 +152,7 @@ function openOrderDetailPage()
     .order-price-group
     {
         padding-right: 12px;
+        justify-content: end;
         .order-price-num
         {
             color: #333333;
@@ -140,13 +166,13 @@ function openOrderDetailPage()
         .order-price-status
         {
             margin-bottom: 4px;
+            text-align: right;
             span
             {
                 font-weight: 500;
                 line-height: 20px;
                 font-size: 14px;
-                color: #AAAAAA;/*已取消文字颜色*/
-                color: #0086f6;/*待支付文字颜色*/
+                color: #0086f6;/*待支付，已支付文字颜色*/
             }
         }
     }
