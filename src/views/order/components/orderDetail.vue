@@ -113,7 +113,7 @@ function handlePaymentClick(status,orderID)
                         <div class="flight-main-container">
                             <div class="flight-box">
                                 <div class="depart">
-                                    <strong>20:30</strong>
+                                    <strong>{{ props.orderInformation.departTime }}</strong>
                                     <span>
                                         <span class="city">{{ props.orderInformation.departCity }}</span>
                                         <span class="airport">{{ props.orderInformation.departPortName }}</span>
@@ -121,7 +121,7 @@ function handlePaymentClick(status,orderID)
                                 </div>
                                 <div class="middle-box"></div>
                                 <div class="arrive">
-                                    <strong>22:30</strong>
+                                    <strong>{{ props.orderInformation.arriveTime }}</strong>
                                     <span>
                                         <span class="city">{{ props.orderInformation.arriveCity }}</span>
                                         <span class="airport">{{ props.orderInformation.arrivePortName }}</span>
