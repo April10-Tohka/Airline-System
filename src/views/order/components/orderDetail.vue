@@ -2,6 +2,7 @@
 import {computed, ref} from "vue";
 import {updateOrder} from "@/api/order.js"
 import { ElLoading , ElMessageBox } from 'element-plus'
+import { getFormattedDate} from "@/utils/dateFormat.js"
 let model=defineModel()
 const props=defineProps(['orderInformation']);
 const emit=defineEmits(['update:order-status']);
@@ -101,6 +102,41 @@ function handlePaymentClick(status,orderID)
                         <div class="prompt"></div>
                     </div>
                 </div>
+                <div class="flight">
+                    <div class="flight-title">
+                        <span>{{props.orderInformation.departCity}}</span>
+                        <svg t="1712742317437" style="margin-left: 5px;margin-right: 5px;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7695" width="16" height="16"><path d="M984.618667 594.538667a54.741333 54.741333 0 0 0-17.066667-20.032l-34.154667-27.093334-273.173333-214.869333c-28.842667-24.128-49.450667-12.373333-42.389333 25.92l36.501333 189.568H77.994667a35.328 35.328 0 1 0 0 70.634667h872.469333c27.669333 0 38.848-10.026667 34.133333-24.128" fill="#666666" p-id="7696"></path></svg>
+                        <span>{{ props.orderInformation.arriveCity }}</span>
+                    </div>
+                    <div class="flight-card">
+                        <div class="flight-date">{{getFormattedDate(new Date())}}</div>
+                        <div class="flight-main-container">
+                            <div class="flight-box">
+                                <div class="depart">
+                                    <strong>20:30</strong>
+                                    <span>
+                                        <span class="city">{{ props.orderInformation.departCity }}</span>
+                                        <span class="airport">{{ props.orderInformation.departPortName }}</span>
+                                    </span>
+                                </div>
+                                <div class="middle-box"></div>
+                                <div class="arrive">
+                                    <strong>22:30</strong>
+                                    <span>
+                                        <span class="city">{{ props.orderInformation.arriveCity }}</span>
+                                        <span class="airport">{{ props.orderInformation.arrivePortName }}</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flight-basic-box">
+                                <img src="../../../assets/img/airlines/3U.png" width="16px" height="16px">
+                                <span>
+                                      <span>{{ props.orderInformation.airlineCompanyName }}</span><span>{{ props.orderInformation.flightNo }}</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="passenger">
                     <div class="passenger-title">出行人信息</div>
                     <div class="passenger-card">
@@ -155,7 +191,7 @@ function handlePaymentClick(status,orderID)
         flex: 1;
         margin-left: 40px;
     }
-    .order-status,.passenger,.contactInfo,.payment
+    .order-status,.passenger,.contactInfo,.payment,.flight
     {
         background-color: #ffffff;
         border-radius: 8px;
@@ -233,9 +269,9 @@ function handlePaymentClick(status,orderID)
         }
     }
 }
-.passenger,.contactInfo
+.passenger,.contactInfo,.flight
 {
-    .passenger-title,.contactInfo-title
+    .passenger-title,.contactInfo-title,.flight-title
     {
         padding: 16px 24px;
         font-size: 20px;
@@ -245,7 +281,7 @@ function handlePaymentClick(status,orderID)
         align-items: center;
         color: rgb(51,51,51);
     }
-    .passenger-card,.contactInfo-card
+    .passenger-card,.contactInfo-card,.flight-card
     {
         padding: 24px;
         .name
@@ -321,6 +357,98 @@ function handlePaymentClick(status,orderID)
                 font-style: normal;
                 font-size: 12px;
             }
+        }
+    }
+}
+.flight-card
+{
+    .flight-date
+    {
+        margin-bottom: 16px;
+        font-size: 16px;
+        font-weight: 600;
+        color: rgb(51, 51, 51);
+    }
+    .flight-main-container
+    {
+        display: flex;
+        flex-direction: row;
+    }
+    .flight-box
+    {
+        width: 58%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding-right: 16px;
+        position: relative;
+        .middle-box
+        {
+            margin: 18px 0;
+        }
+        .depart,.arrive
+        {
+            font-size: 14px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            color: rgb(51,51,51);
+            position: relative;
+            strong
+            {
+                margin-left: 12px;
+                margin-right: 40px;
+                width: 48px;
+                text-align: right;
+                font-weight: 600;
+            }
+            span
+            {
+                margin-right: 8px;
+                flex: 1 1 0%;
+                .city
+                {
+                    font-weight: 600;
+                    margin-right: 8px;
+                }
+            }
+        }
+        .depart:before,.arrive:before
+        {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background-color: #dde4ed;
+            position: absolute;
+            top: 8px;
+            bottom: 0;
+            left: 76px;
+        }
+    }
+    .flight-box:before
+    {
+        content: "";
+        width: 4px;
+        height: 42px;
+        background-color: rgb(221,228,237);
+        position: absolute;
+        border-radius: 1px;
+        top: 18px;
+        bottom: 10px;
+        left: 78px;
+    }
+    .flight-basic-box
+    {
+        span
+        {
+            margin-left: 4px;
+            margin-right: 8px;
+            font-size: 14px;
+            color: rgb(51,51,51);
+        }
+        span:first-child
+        {
+            margin-right: 1px;
         }
     }
 }
