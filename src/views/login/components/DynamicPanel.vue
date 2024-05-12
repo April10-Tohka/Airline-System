@@ -30,6 +30,10 @@ const accountLogin=()=>{
         </form>
         <div class="form-wrap">
             <div class="agreement-list">
+                <div class="agreement-tip" ref="agreementTip">
+                    <div class="agreement-tip-arrow"></div>
+                    请先阅读并勾选协议
+                </div>
                 <div class="checkbox-agreement">
                     <input type="checkbox" id="checkbox-agreement-input">
                     <label for="checkbox-agreement-input"></label>
@@ -131,6 +135,7 @@ const accountLogin=()=>{
     display: flex;
     flex-direction: row;
     align-items: center;
+    position: relative;
     .agreement-entry
     {
         color: rgb(153,153,153);
@@ -179,6 +184,34 @@ const accountLogin=()=>{
         transform: scale(1.2); /* 添加选中时的动画效果 */
     }
 }
+/*设置未确认同意协议的样式*/
+.agreement-tip
+{
+    display: none;
+    height: 22px;
+    background-color: #102247;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    padding: 5px 8px;
+    border-radius: 3px;
+    position: absolute;
+    margin-bottom: 5px;
+    bottom: 100%;
+    left: -8px;
+    .agreement-tip-arrow
+    {
+        width: 0;
+        height: 0;
+        border: 5px solid transparent;
+        border-top-color: #102247;
+        position: absolute;
+        top: 100%;
+        left: 10px;
+    }
+}
+
 /*设置验证码登录，免费注册的样式*/
 .login-set
 {

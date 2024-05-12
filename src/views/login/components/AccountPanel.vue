@@ -1,9 +1,52 @@
 <script setup>
+import {login} from "@/api/user.js"
+import {useRouter} from "vue-router";
+import {ref} from "vue";
+
+const router=useRouter();
 const emit=defineEmits(['changeCurrentIndex']);
 //点击验证码登录
 const verifyCodeLogin=()=>{
     console.log("点击了验证码登录");
     emit('changeCurrentIndex',1);
+}
+//账户表单数据
+const accountForm={
+    phone:"13727851384",
+    password:"123456"
+}
+let isAgree=ref(false);//是否同意服务协议复选框
+
+// 处理复选框点击事件的逻辑
+function handleCheckboxClick()
+{
+    agreementTip.value.style.display="none";
+}
+let agreementTip=ref(null);//DOM元素-未勾选同意协议复选框的提示框
+/**
+ * 使用账号密码登录
+ */
+function accountLogin()
+{
+    //点击登录先检查是否同意服务协议复选框
+    console.log("点击了登录按钮");
+    if(!isAgree.value)
+    {
+        agreementTip.value.style.display="block";
+        return;
+    }
+    login(accountForm)
+        .then(res=>{
+            console.log("点击了登录按钮",res);
+            if(!localStorage.getItem('token'))
+            {
+                //没有token时，存储token
+                localStorage.setItem('token',res.data.token);
+            }
+            //跳转到首页
+            console.log("router:",router);
+            router.push({path:"/"});
+        })
 }
 </script>
 
@@ -12,25 +55,29 @@ const verifyCodeLogin=()=>{
     <form class="form-wrap">
         <dl>
             <dd>
-                <input type="text" placeholder="国内手机号/用户名/邮箱/卡号" class="r-input">
+                <input type="text" placeholder="国内手机号/用户名/邮箱/卡号" class="r-input" v-model="accountForm.phone">
             </dd>
         </dl>
         <dl>
             <dd class="r-input input-auth-code">
-                <input type="password" placeholder="登录密码" class="p-input">
+                <input type="password" placeholder="登录密码" class="p-input" v-model="accountForm.password">
                 <a href="#" class="forget-pwd">忘记密码</a>
             </dd>
         </dl>
         <dl>
             <dd>
-                <button type="button" class="login-button">登录</button>
+                <button type="button" class="login-button" @click="accountLogin">登录</button>
             </dd>
         </dl>
     </form>
     <div class="form-wrap">
         <div class="agreement-list">
+            <div class="agreement-tip" ref="agreementTip">
+                <div class="agreement-tip-arrow"></div>
+                请先阅读并勾选协议
+            </div>
             <div class="checkbox-agreement">
-                <input type="checkbox" id="checkbox-agreement-input">
+                <input type="checkbox" id="checkbox-agreement-input" v-model="isAgree" @click="handleCheckboxClick">
                 <label for="checkbox-agreement-input"></label>
             </div>
             <div class="agreement-entry">
@@ -139,6 +186,7 @@ const verifyCodeLogin=()=>{
     display: flex;
     flex-direction: row;
     align-items: center;
+    position: relative;
     .agreement-entry
     {
         color: rgb(153,153,153);
@@ -187,6 +235,34 @@ const verifyCodeLogin=()=>{
         transform: scale(1.2); /* 添加选中时的动画效果 */
     }
 }
+/*设置未确认同意协议的样式*/
+.agreement-tip
+{
+    display: none;
+    height: 22px;
+    background-color: #102247;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    padding: 5px 8px;
+    border-radius: 3px;
+    position: absolute;
+    margin-bottom: 5px;
+    bottom: 100%;
+    left: -8px;
+    .agreement-tip-arrow
+    {
+        width: 0;
+        height: 0;
+        border: 5px solid transparent;
+        border-top-color: #102247;
+        position: absolute;
+        top: 100%;
+        left: 10px;
+    }
+}
+
 /*设置验证码登录，免费注册的样式*/
 .login-set
 {
