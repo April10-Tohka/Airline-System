@@ -3,7 +3,7 @@ import {useRoute} from "vue-router";
 import {onMounted, ref, watch} from "vue";
 import {addFlight, getAllFlights, getCityPort, getFlightDetail, updateFlight} from "@/api/flight.js"
 import {emitter} from "@/utils/mitt.js";
-import {useFlightDataStore} from "@/stores/flightData.js"
+import {useFlightDataStore} from "@/stores/modules/flightData.js"
 import {storeToRefs} from "pinia";
 import {ElMessage} from 'element-plus'
 
