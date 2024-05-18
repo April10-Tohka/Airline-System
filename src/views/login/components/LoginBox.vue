@@ -1,5 +1,6 @@
 <script setup>
 import {ref} from "vue";
+import {emitter} from "@/utils/mitt.js";
 const emit=defineEmits(['changeCurrentIndex']);
 /**
  * 登录方式
@@ -15,12 +16,19 @@ const changeLoginType=(index)=>{
     loginType.value=!loginType.value;
     emit('changeCurrentIndex',index);
 }
+
+const isLoading=ref(false);//是否加载
+
+emitter.on("loading",(value)=>{
+    console.log("监听loading事件，",value);
+    isLoading.value=value;
+})
 </script>
 
 <template>
 <div class="mod-box">
     <div class="login-wrap">
-        <div class="login-box">
+        <div class="login-box" v-loading="isLoading" element-loading-text="Loading...">
             <h2 class="login-box-title"><slot name="title"></slot></h2>
             <slot name="panel"></slot>
         </div>
