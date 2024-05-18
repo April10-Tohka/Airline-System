@@ -16,10 +16,18 @@ export const useUserStore=defineStore("user",()=>{
         console.log("调用了UserStore里的accountLogin函数")
         return accountLoginApi(accountForm)
             .then(res=>{
-                console.log(" accountLoginApi返回的",res);
+                console.log(" accountLoginApi返回成功！！",res);
                 //设置token
                 setToken(res.data.token);
                 token.value=res.data.token;
+                return {
+                    status:res.status,
+                    message:res.data.message
+                }
+            })
+            .catch(err=>{
+                console.log("accountLoginApi返回失败！！！",err);
+                throw err;
             })
     }
 
