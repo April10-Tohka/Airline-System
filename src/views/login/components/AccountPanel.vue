@@ -1,19 +1,20 @@
 <script setup>
-import {login} from "@/api/user.js"
 import {useRouter} from "vue-router";
 import {ref} from "vue";
-
+import {useUserStore} from "@/stores/modules/user.js"
+import Schema from "async-validator";
+import {phoneReg} from "@/utils/RegExp.js"
+import {emitter} from "@/utils/mitt.js";
+import LoginFailureAlert from "@/views/login/components/LoginFailureAlert.vue";
+import {ElNotification} from "element-plus";
 const router=useRouter();
 const emit=defineEmits(['changeCurrentIndex']);
+
 //点击验证码登录
-const verifyCodeLogin=()=>{
+function verifyCodeLogin()
+{
     console.log("点击了验证码登录");
     emit('changeCurrentIndex',1);
-}
-//账户表单数据
-const accountForm={
-    phone:"13727851384",
-    password:"123456"
 }
 let isAgree=ref(false);//是否同意服务协议复选框
 
@@ -23,10 +24,53 @@ function handleCheckboxClick()
     agreementTip.value.style.display="none";
 }
 let agreementTip=ref(null);//DOM元素-未勾选同意协议复选框的提示框
+
+//账户表单数据
+const accountForm={
+    phone:"13727851384",
+    password:"123456"
+}
+//账号表单校验规则
+const accountRules={
+    phone: {
+        type:"string",
+        required:true,
+        validator:(rule,value)=>{
+            const errors=[];
+            console.log("输入的手机号:",value);
+            if(value==="")
+            {
+                errors.push(new Error("手机号不能为空"));
+            }
+            else if(!phoneReg(value))
+            {
+                errors.push(new Error("手机号格式不正确，请重新输入"));
+            }
+            return errors;
+        }
+    },
+    password:{
+        type: "string",
+        required:true,
+        validator:(rule,value)=>{
+            const errors=[];
+            console.log("输入的密码为:",value);
+            if(value==="")
+            {
+                errors.push(new Error("密码不能为空"));
+            }
+            return errors;
+        }
+    }
+}
+const validator = new Schema(accountRules);
+
+const isLoginFailure=ref(false);//是否登录失败
+const loginFailureReason=ref("");//登录失败的原因
 /**
- * 使用账号密码登录
+ * 使用账号密码登录逻辑
  */
-function accountLogin()
+function handleLogin()
 {
     //点击登录先检查是否同意服务协议复选框
     console.log("点击了登录按钮");
@@ -35,18 +79,42 @@ function accountLogin()
         agreementTip.value.style.display="block";
         return;
     }
-    login(accountForm)
-        .then(res=>{
-            console.log("点击了登录按钮",res);
-            if(!localStorage.getItem('token'))
-            {
-                //没有token时，存储token
-                localStorage.setItem('token',res.data.token);
-            }
-            //跳转到首页
-            console.log("router:",router);
-            router.push({path:"/"});
+    emitter.emit("loading",true);
+    validator.validate(accountForm)
+        .then(()=>{
+            console.log("客户端校验通过");
+            return useUserStore().accountLogin(accountForm)
+                .then(res=>{
+                    console.log("服务器校验信息成功",res);
+                    ElNotification({
+                        title: 'Success',
+                        message: '登陆成功',
+                        type: 'success',
+                    })
+                    router.push({path:"/"});
+                })
+                .catch(err=>{
+                    console.log("服务器校验信息失败",err);
+                    isLoginFailure.value=true;
+                    loginFailureReason.value=err.error;
+                })
         })
+        .catch(({errors,fields})=>{
+            console.log("客户端校验不通过!!!!");
+            isLoginFailure.value=true;//登录失败
+            loginFailureReason.value=errors[0].message;//显示第一个错误信息
+            errors.map((item)=>{
+                console.log("错误信息:",item.message);
+            })
+        })
+        .finally(()=>{
+            console.log("validator.validate返回的promise的finally");
+            setTimeout(()=>{
+                emitter.emit("loading",false);
+            },500)
+
+        })
+
 }
 </script>
 
@@ -64,9 +132,12 @@ function accountLogin()
                 <a href="#" class="forget-pwd">忘记密码</a>
             </dd>
         </dl>
+        <LoginFailureAlert :is-login-failure="isLoginFailure">
+            {{loginFailureReason}}
+        </LoginFailureAlert>
         <dl>
             <dd>
-                <button type="button" class="login-button" @click="accountLogin">登录</button>
+                <button type="button" class="login-button" @click="handleLogin">登录</button>
             </dd>
         </dl>
     </form>
