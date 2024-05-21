@@ -1,5 +1,5 @@
 <script setup>
-import TopLayer from "@/views/login/components/TopLayer.vue";
+import TopLayer from "@/components/TopLayer.vue";
 import TipSecurity from "@/views/login/components/TipSecurity.vue";
 import BannerPic from "@/views/login/components/BannerPic.vue";
 import LoginBox from "@/views/login/components/LoginBox.vue";
