@@ -18,10 +18,11 @@ server.interceptors.response.use((response)=>{
 },(err)=>{
     console.log("这里是axios的响应拦截器的处理错误的回调函数");
     console.log("查看错误是：",err);
-    return Promise.reject({
-        error:err.response.data.error,
-        status:err.response.status
-    });
+    // return Promise.reject({
+    //     error:err.response.data.error,
+    //     status:err.response.status
+    // });
+    return  Promise.reject(err.response.data)
 })
 
 export  default server;
