@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import {ref} from "vue";
-import {accountLoginApi} from "@/api/user.js"
+import {accountLoginApi,setPasswordApi} from "@/api/user.js"
 import {getToken,setToken,removeToken} from "@/utils/auth.js"
 
 export const useUserStore=defineStore("user",()=>{
@@ -31,5 +31,30 @@ export const useUserStore=defineStore("user",()=>{
             })
     }
 
-    return {token,accountLogin}
+
+    /**
+     * 注册
+     * @param regForm 注册表单数据 {phone,password}
+     */
+    function register(regForm)
+    {
+        console.log("调用了UserStore里的register函数");
+        return setPasswordApi(regForm)
+            .then(res=>{
+                console.log("setPasswordApi成功！",res);
+                //设置token
+                setToken(res.data.token);
+                token.value=res.data.token;
+                return {
+                    status:res.status,
+                    message:res.data.message
+                }
+            })
+            .catch(err=>{
+                console.log("setPasswordApi失败！！！！",err);
+                throw err;
+            })
+    }
+
+    return {token,accountLogin,register}
 })
