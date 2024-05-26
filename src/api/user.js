@@ -45,3 +45,17 @@ export function verifyCaptchaApi(data)
         data
     })
 }
+
+/**
+ * 注册时设置密码Api
+ * @param data {{phone,password}}
+ * @returns {*}
+ */
+export function setPasswordApi(data)
+{
+    return request({
+        url:"/auth/register/set-password",
+        method:"post",
+        data
+    })
+}
