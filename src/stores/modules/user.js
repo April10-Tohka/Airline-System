@@ -56,5 +56,17 @@ export const useUserStore=defineStore("user",()=>{
             })
     }
 
-    return {token,accountLogin,register}
+    /**
+     * 退出登录
+     * @returns {Promise<Awaited<string>>} 返回fulfilled状态的Promise
+     */
+    function logout()
+    {
+        console.log("调用了UserStore里的logout函数");
+        token.value="";
+        removeToken();
+        return Promise.resolve("OK");
+    }
+
+    return {token,accountLogin,register,logout}
 })
