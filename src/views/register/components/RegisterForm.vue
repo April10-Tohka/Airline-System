@@ -94,6 +94,7 @@ function handleNextStep()
                 })
                 .catch(err=>{
                     console.log("verifyCaptchaApi不通过！！！",err);
+                    document.getElementById("send-captcha-tip").style.display="none";
                     registerFailure.captcha=err.error;
                     if(err.to)
                     {

@@ -4,7 +4,7 @@ const router=useRouter()
 function loginNow()
 {
     console.log("点击了立即登录");
-    router.push("/login")
+    router.push("/")
 }
 </script>
 
