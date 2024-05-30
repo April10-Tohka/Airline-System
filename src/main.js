@@ -1,7 +1,7 @@
 import './assets/main.css'
 
 import { createApp } from 'vue'
-
+import {loadDirectives} from "@/directives/index.js";
 import App from './App.vue'
 import pinia from "./stores/index.js"
 import router from './router'
@@ -16,4 +16,6 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(pinia)
 app.use(router)
 app.use(ElementPlus);
+//加载自定义指令
+loadDirectives(app);
 app.mount('#app')
