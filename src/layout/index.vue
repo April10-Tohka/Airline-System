@@ -1,37 +1,37 @@
 <script setup>
 import footInfo from "@/components/footInfo.vue"
-import topMenu from "@/components/topMenu.vue"
+import TopLayer from "@/components/TopLayer.vue";
 </script>
 
 <template>
-    <div>
-        <el-container>
-            <el-header style="padding:0">
-                <topMenu></topMenu>
-            </el-header>
-            <el-main style="padding:0">
-                <router-view></router-view>
-            </el-main>
-            <el-footer style="padding:0">
-                <footInfo></footInfo>
-            </el-footer>
-        </el-container>
-    </div>
+    <el-container>
+        <el-header class="el-header">
+            <TopLayer></TopLayer>
+        </el-header>
+        <el-main class="el-main">
+            <router-view></router-view>
+        </el-main>
+        <el-footer class="el-footer">
+            <footInfo></footInfo>
+        </el-footer>
+    </el-container>
 </template>
 
 <style scoped>
-.el-header {
+.el-header,.el-main,.el-footer
+{
     padding: 0;
     margin: 0;
 }
+.el-header {
+    height: fit-content;
+}
 .el-main {
-    padding: 0;
     min-height: calc(100vh - 210px);
     background-color: #eef1f6;
 }
 .el-footer {
-    padding: 0;
-    height: 190px;
-    margin: 0;
+    height: fit-content;
 }
+
 </style>
