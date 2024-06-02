@@ -1,27 +1,7 @@
-<template>
-<div>
-  <Carousel></Carousel>
-  <searchBox class="searchBox"></searchBox>
-  <div class="hottitle">———— 热门航线 ————</div>
-    <button @click="router.push('/admin')">点击前往后台管理</button>
-  <div class="hot">
-    <el-row :gutter="30">
-      <el-col :span="6" v-for="(flight,index) in flights" :key="index">
-        <div class="el-card" @click="ToTicket(flight.departCity,flight.arriveCity,flight.flightDate)">
-          <img :src="flight.img" alt />
-          <span class="adr">{{flight.departCity}} - {{flight.arriveCity}}</span>
-          <span>经济舱单程含税</span>
-          <span>￥{{flight.price}}起</span>
-        </div>
-      </el-col>
-    </el-row>
-  </div>
-</div>
-</template>
-
 <script setup>
-import  Carousel from "@/components/Carousel.vue"
-import searchBox from "@/components/searchBox.vue";
+import NavigationBar from "@/components/NavigationBar.vue";
+import Carousel from "./components/Carousel.vue";
+import SearchForm from "@/views/home/components/SearchForm.vue";
 import {ref,onBeforeMount} from "vue";
 import {useRouter} from "vue-router";
 import {getColumnData,getHotFlight} from "@/api/flight.js"
@@ -31,6 +11,7 @@ function ToTicket(departCity,arriveCity,flightDate)
 {
     router.push({path:"/ticket",query:{departCity,arriveCity,flightDate}});
 }
+/**
 //获取数据并本地存储
 function getDataToLocalStorage()
 {
@@ -67,9 +48,56 @@ onBeforeMount(()=>{
         flights.value=data;
     })
 })
+/
+
+/**
+ * 交换出发地和目的地
+ */
+function swapFromTo()
+{
+    console.log("点击了交换目的地");
+    let [switchIcon]=document.getElementsByClassName("switch-icon");
+    switchIcon.classList.toggle("switch-icon-rotate");
+}
 </script>
 
+<template>
+<div class="container">
+    <NavigationBar></NavigationBar>
+    <SearchForm></SearchForm>
+    <Carousel></Carousel>
+
+
+
+<!--
+
+    <div class="hottitle">———— 热门航线 ————</div>
+    <button @click="router.push('/admin')">点击前往后台管理</button>
+    <div class="hot">
+        <el-row :gutter="30">
+            <el-col :span="6" v-for="(flight,index) in flights" :key="index">
+                <div class="el-card" @click="ToTicket(flight.departCity,flight.arriveCity,flight.flightDate)">
+                    <img :src="flight.img" alt />
+                    <span class="adr">{{flight.departCity}} - {{flight.arriveCity}}</span>
+                    <span>经济舱单程含税</span>
+                    <span>￥{{flight.price}}起</span>
+                </div>
+            </el-col>
+        </el-row>
+    </div>
+   -->
+</div>
+</template>
+
+
+
 <style scoped>
+.container
+{
+    width: 1180px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
 .searchBox{
   position: absolute;
   margin-top: -400px;
@@ -115,4 +143,5 @@ onBeforeMount(()=>{
 .hot {
   margin: 50px 15px;
 }
+
 </style>
