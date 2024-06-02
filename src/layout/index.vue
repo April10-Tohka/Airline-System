@@ -1,6 +1,6 @@
 <script setup>
-import footInfo from "@/components/footInfo.vue"
-import TopLayer from "@/components/TopLayer.vue";
+import TopLayer from "@/layout/components/TopLayer.vue";
+import FooterLayer from "@/layout/components/FooterLayer.vue";
 </script>
 
 <template>
@@ -12,7 +12,7 @@ import TopLayer from "@/components/TopLayer.vue";
             <router-view></router-view>
         </el-main>
         <el-footer class="el-footer">
-            <footInfo></footInfo>
+            <FooterLayer></FooterLayer>
         </el-footer>
     </el-container>
 </template>
@@ -32,6 +32,7 @@ import TopLayer from "@/components/TopLayer.vue";
 }
 .el-footer {
     height: fit-content;
+    background-color: #f8fafd;
 }
 
 </style>

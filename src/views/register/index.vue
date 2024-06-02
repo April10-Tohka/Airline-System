@@ -1,5 +1,5 @@
 <script setup>
-import TopLayer from "@/components/TopLayer.vue";
+import TopLayer from "@/layout/components/TopLayer.vue";
 import StepBar from "@/views/register/components/StepBar.vue";
 import RegisterForm from "@/views/register/components/RegisterForm.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
