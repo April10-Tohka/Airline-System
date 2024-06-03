@@ -38,3 +38,4 @@ package.json
 vite.config.js
 README.md
 *.drawio
+src/test

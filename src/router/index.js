@@ -26,7 +26,16 @@ const router = createRouter({
         ticket,
         order,
         login,
-        register
+        register,
+        {
+            path:"/test",
+            name:"test",
+            component:()=>import("@/test/Main.vue"),
+            meta:
+                {
+                    title:"测试路由"
+                }
+        }
     ]
 })
 
