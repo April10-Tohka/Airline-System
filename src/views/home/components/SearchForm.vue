@@ -21,7 +21,7 @@ function swapFromTo()
     let [switchIcon]=document.getElementsByClassName("switch-icon");
     switchIcon.classList.toggle("switch-icon-rotate");
 }
-
+//要搜索的航班信息
 const flight=reactive({
     depart:"珠海",
     arrival:"上海",
@@ -35,8 +35,22 @@ function searchFlight()
     router.push({path:"/ticket",query:flight})
 }
 
-let computedOnClick=computed(()=> props.onClick || searchFlight)
-
+let computedOnClick=computed(()=> {
+    return ()=>{
+        //ticket组件传递了回调函数
+        if(props.onClick)
+        {
+            // 调用回调函数，并传入要搜索的飞机航班信息
+            props.onClick(flight);
+            return;
+        }
+        searchFlight()
+    }
+})
+/*设置禁用掉的日期*/
+const disabledDate = (time) => {
+    return time.getTime() < Date.now();
+}
 </script>
 
 <template>
@@ -73,6 +87,7 @@ let computedOnClick=computed(()=> props.onClick || searchFlight)
                                     placeholder="Pick a day"
                                     format="YYYY-MM-DD"
                                     value-format="YYYY-MM-DD"
+                                    :disabled-date="disabledDate"
                                 />
                             </div>
                         </div>
@@ -118,6 +133,10 @@ let computedOnClick=computed(()=> props.onClick || searchFlight)
         flex-direction: row;
         position: relative;
     }
+}
+.form-item-group-wrap:nth-child(2)
+{
+    transform: translateX(-100px);
 }
 .form-item-group-wrap:hover
 {
@@ -212,9 +231,21 @@ let computedOnClick=computed(()=> props.onClick || searchFlight)
     position: absolute;
     top: 30px;
 }
-/*TODO:去除日期选择器的边框*/
+/*去除日期选择器的边框样式*/
 .date-picker:deep(.el-input__wrapper)
 {
-    border: 0 solid transparent;
+    box-shadow: none;
+}
+/*去除日期选择器的删除按钮*/
+.date-picker:deep(.el-input__suffix)
+{
+    display: none;
+}
+.date-picker:deep(.el-input__inner)
+{
+    font-family: Helvetica Neue,Tahoma,Arial,PingFangSC-Regular,Hiragino Sans GB,Microsoft Yahei,sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: black;
 }
 </style>
