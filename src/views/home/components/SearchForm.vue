@@ -20,6 +20,8 @@ function swapFromTo()
     console.log("点击了交换目的地");
     let [switchIcon]=document.getElementsByClassName("switch-icon");
     switchIcon.classList.toggle("switch-icon-rotate");
+    //对象解构来互换属性值
+    [flight.depart,flight.arrival]=[flight.arrival,flight.depart];
 }
 //要搜索的航班信息
 const flight=reactive({
@@ -28,10 +30,10 @@ const flight=reactive({
     departDate:dayjs(new Date()).format("YYYY-MM-DD")
 })
 
-function searchFlight()
+function toTicket()
 {
     console.log("search form 组件传递的");
-    console.log("搜索航班");
+    console.log("搜索航班，跳转到ticket页面");
     router.push({path:"/ticket",query:flight})
 }
 
@@ -44,7 +46,7 @@ let computedOnClick=computed(()=> {
             props.onClick(flight);
             return;
         }
-        searchFlight()
+        toTicket()
     }
 })
 /*设置禁用掉的日期*/
