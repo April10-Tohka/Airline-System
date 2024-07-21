@@ -2,7 +2,7 @@
 import SearchButton from "@/components/SearchButton.vue";
 import dayjs from "dayjs";
 import {useRouter} from "vue-router";
-import {computed, reactive} from "vue";
+import {computed, reactive,onMounted} from "vue";
 const router=useRouter();
 const props=defineProps({
     onClick:{
@@ -11,7 +11,21 @@ const props=defineProps({
         default:null
     }
 })
-
+onMounted(()=>{
+    //挂载时，获取所有 class="form-item" 的元素集合
+    const formItemElements= document.getElementsByClassName("form-item");
+    for(let i=0;i<formItemElements.length;i++)
+    {
+        formItemElements[i].addEventListener("click",(e)=>{
+            //移除所有元素的 active 类名
+            for(let j=0;j<formItemElements.length;j++)
+            {
+                formItemElements[j].classList.remove("active");
+            }
+            e.target.classList.add("active")
+        })
+    }
+})
 /**
  * 交换出发地和目的地
  */
@@ -22,6 +36,9 @@ function swapFromTo()
     switchIcon.classList.toggle("switch-icon-rotate");
     //对象解构来互换属性值
     [flight.depart,flight.arrival]=[flight.arrival,flight.depart];
+//     这行代码实际上是在一行内完成了两个步骤：
+// 创建一个临时数组 [obj.b, obj.a]，其中 obj.b 是 b 属性的当前值，obj.a 是 a 属性的当前值。
+// 然后，通过解构赋值，将这个临时数组的值分别赋给 obj.a 和 obj.b。这样就完成了 a 和 b 属性值的互换。
 }
 //要搜索的航班信息
 const flight=reactive({
@@ -30,13 +47,14 @@ const flight=reactive({
     departDate:dayjs(new Date()).format("YYYY-MM-DD")
 })
 
+//搜索航班，跳转到ticket页面
 function toTicket()
 {
     console.log("search form 组件传递的");
-    console.log("搜索航班，跳转到ticket页面");
     router.push({path:"/ticket",query:flight})
 }
 
+//SearchButton耦合在SearchForm组件内，ticket页面又会用到，但是处理逻辑不同，所以只能根据传递回调函数
 let computedOnClick=computed(()=> {
     return ()=>{
         //ticket组件传递了回调函数
@@ -52,6 +70,16 @@ let computedOnClick=computed(()=> {
 /*设置禁用掉的日期*/
 const disabledDate = (time) => {
     return time.getTime() < Date.now();
+}
+//date-picker Focus事件的回调函数
+const handleDatePickerFocus=(e)=>{
+    const formItemElements= document.getElementsByClassName("form-item");
+    for(let i=0;i<formItemElements.length;i++)
+    {
+        //移除所有元素的 active 类名
+        formItemElements[i].classList.remove("active");
+    }
+    formItemElements[formItemElements.length-1].classList.add("active");
 }
 </script>
 
@@ -90,6 +118,7 @@ const disabledDate = (time) => {
                                     format="YYYY-MM-DD"
                                     value-format="YYYY-MM-DD"
                                     :disabled-date="disabledDate"
+                                    @focus="handleDatePickerFocus"
                                 />
                             </div>
                         </div>
@@ -162,18 +191,27 @@ const disabledDate = (time) => {
         left: 16px;
     }
 }
-/*头上的蓝线*/
+/*头上的蓝线样式*/
 .form-item::before
 {
     content: "";
     height: 1px;
-    background-color: #ffffff;
-    border-top: 2px solid #0086f6;
+    width: 100%;
     position: absolute;
     top: -1px;
     left: 0;
+    animation: toRight 0.15s ease-out 1 forwards;
+    border-radius: 16px 0 0 0;
+    border-top: 2px solid #0086f6;
+    background-color: #ffffff;
+    display: none;
+}
+/*active状态下显示蓝线*/
+.form-item.active::before
+{
     display: block;
 }
+
 .flt-depart
 {
     border-right: 0;
@@ -185,7 +223,8 @@ const disabledDate = (time) => {
 .switch-btn
 {
     margin-top: 16px;
-    position: relative;
+    position: absolute;
+    left: 220px;
     .switch-icon-wrap
     {
         width: 30px;
@@ -249,5 +288,21 @@ const disabledDate = (time) => {
     font-size: 16px;
     font-weight: 400;
     color: black;
+}
+
+@keyframes toRight
+{
+    0%
+    {
+        opacity: 0.8;
+        transform: scaleX(0.1);
+        transform-origin: 0 0 0;
+    }
+    100%
+    {
+        opacity: 1;
+        transform: scaleX(1);
+        transform-origin: 0 0 0;
+    }
 }
 </style>
