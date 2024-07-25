@@ -80,7 +80,7 @@ function handleMouseDown(e)
 
 <template>
     <div id="city-picker">
-        <input class="city-picker-input" @click="showPanel"
+        <input class="city-picker-input" @click="showPanel" readonly
         v-model="cityValue" @blur="handleInputBlur">
         <div class="city-picker-selector" v-show="panelState" @mousedown="handleMouseDown">
             <div class="city-picker-selector-left">
