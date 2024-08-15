@@ -1,8 +1,11 @@
 <script setup>
+//引入组件
 import SearchButton from "@/components/SearchButton.vue";
+import CityPicker from "@/components/CityPicker.vue";
 import dayjs from "dayjs";
+//引入api
 import {useRouter} from "vue-router";
-import {computed, reactive,onMounted} from "vue";
+import {computed, reactive, onMounted, ref} from "vue";
 const router=useRouter();
 const props=defineProps({
     onClick:{
@@ -22,7 +25,12 @@ onMounted(()=>{
             {
                 formItemElements[j].classList.remove("active");
             }
-            e.target.classList.add("active")
+            //找到目标元素的父元素并添加 active 类名
+            let isFormItem=e.target.closest(".form-item");
+            if(isFormItem)
+            {
+                isFormItem.classList.add("active");
+            }
         })
     }
 })
@@ -36,14 +44,11 @@ function swapFromTo()
     switchIcon.classList.toggle("switch-icon-rotate");
     //对象解构来互换属性值
     [flight.depart,flight.arrival]=[flight.arrival,flight.depart];
-//     这行代码实际上是在一行内完成了两个步骤：
-// 创建一个临时数组 [obj.b, obj.a]，其中 obj.b 是 b 属性的当前值，obj.a 是 a 属性的当前值。
-// 然后，通过解构赋值，将这个临时数组的值分别赋给 obj.a 和 obj.b。这样就完成了 a 和 b 属性值的互换。
 }
 //要搜索的航班信息
 const flight=reactive({
-    depart:"珠海",
-    arrival:"上海",
+    depart:"上海",
+    arrival:"北京",
     departDate:dayjs(new Date()).format("YYYY-MM-DD")
 })
 
@@ -55,6 +60,7 @@ function toTicket()
 }
 
 //SearchButton耦合在SearchForm组件内，ticket页面又会用到，但是处理逻辑不同，所以只能根据传递回调函数
+//todo：待组件化
 let computedOnClick=computed(()=> {
     return ()=>{
         //ticket组件传递了回调函数
@@ -81,6 +87,16 @@ const handleDatePickerFocus=(e)=>{
     }
     formItemElements[formItemElements.length-1].classList.add("active");
 }
+
+//在组件input失去焦点的回调函数
+function handleCityPickerBlur()
+{
+    const formItemElements= document.getElementsByClassName("form-item");
+    for(let i=0;i<formItemElements.length;i++)
+    {
+        formItemElements[i].classList.remove("active");
+    }
+}
 </script>
 
 <template>
@@ -90,20 +106,18 @@ const handleDatePickerFocus=(e)=>{
                 <div class="form-line">
                     <div class="form-item-group-wrap">
                         <div class="form-item-group">
-                            <div class="form-item flt-depart">
-                                <label>出发地</label>
-                                <div class="outside">
-                                    <div class="city-picker-selector"></div>
-                                </div>
-                            </div>
                             <div class="switch-btn">
                                 <div class="switch-icon-wrap" @click="swapFromTo">
                                     <svg t="1717232869386" class="switch-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4313" width="16" height="16"><path d="M609.834667 97.834667a42.666667 42.666667 0 0 1 60.330666 0l170.666667 170.666666a42.666667 42.666667 0 0 1 0 60.330667l-170.666667 170.666667a42.666667 42.666667 0 0 1-60.330666-60.330667L707.669333 341.333333H213.333333a42.666667 42.666667 0 0 1 0-85.333333h494.336l-97.834666-97.834667a42.666667 42.666667 0 0 1 0-60.330666z m-195.669334 426.666666a42.666667 42.666667 0 0 1 0 60.330667L316.330667 682.666667H810.666667a42.666667 42.666667 0 1 1 0 85.333333H316.330667l97.834666 97.834667a42.666667 42.666667 0 0 1-60.330666 60.330666l-170.666667-170.666666a42.666667 42.666667 0 0 1 0-60.330667l170.666667-170.666667a42.666667 42.666667 0 0 1 60.330666 0z" fill="#707070" p-id="4314"></path></svg>
                                 </div>
                             </div>
+                            <div class="form-item flt-depart" >
+                                <label>出发地</label>
+                                <CityPicker v-model="flight.depart" @blur="handleCityPickerBlur"></CityPicker>
+                            </div>
                             <div class="form-item flt-arrival">
                                 <label>目的地</label>
-                                <div class="outside"></div>
+                                <CityPicker v-model="flight.arrival" @blur="handleCityPickerBlur"></CityPicker>
                             </div>
                         </div>
                     </div>
@@ -211,14 +225,10 @@ const handleDatePickerFocus=(e)=>{
 {
     display: block;
 }
-
-.flt-depart
+/*active状态下的label标签文字显示蓝色*/
+.form-item.active label
 {
-    border-right: 0;
-}
-.flt-arrival
-{
-    border-left: 0;
+    color: #0086f6;
 }
 .switch-btn
 {
@@ -305,4 +315,5 @@ const handleDatePickerFocus=(e)=>{
         transform-origin: 0 0 0;
     }
 }
+
 </style>
