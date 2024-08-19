@@ -14,7 +14,7 @@ interface departure {
 export const getLowPriceReport = (departure: departure) => {
   return request({
     url: "/api/low-price-report",
-    method: "get",
+    method: "post",
     data: departure,
   });
 };
