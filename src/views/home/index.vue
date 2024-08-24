@@ -2,7 +2,7 @@
 import NavigationBar from "@/components/NavigationBar.vue";
 import Carousel from "./components/Carousel.vue";
 import SearchForm from "@/views/home/components/SearchForm.vue";
-
+import LowPriceReport from "@/views/home/components/LowPriceReport.vue";
 </script>
 
 <template>
@@ -10,6 +10,7 @@ import SearchForm from "@/views/home/components/SearchForm.vue";
     <NavigationBar></NavigationBar>
     <SearchForm></SearchForm>
     <Carousel></Carousel>
+    <LowPriceReport></LowPriceReport>
 </div>
 </template>
 
