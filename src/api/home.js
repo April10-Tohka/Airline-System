@@ -1,17 +1,7 @@
 // /home路径下的api
-import request from "../utils/request";
+import request from "../utils/request.js";
 
-interface departure {
-  code: string;
-  eName: string;
-  id: number;
-  international: boolean;
-  lat: number;
-  lon: number;
-  name: string;
-  timeZone: number;
-}
-export const getLowPriceReport = (departure: departure) => {
+export const getLowPriceReport = (departure) => {
   return request({
     url: "/api/low-price-report",
     method: "post",

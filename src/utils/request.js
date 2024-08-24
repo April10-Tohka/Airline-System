@@ -1,12 +1,12 @@
-import axios, { InternalAxiosRequestConfig, AxiosInstance } from "axios";
+import axios from "axios";
 const baseURL = "http://localhost:3000";
-const server: AxiosInstance = axios.create({
+const server = axios.create({
   baseURL,
   timeout: 5000,
 });
 // 添加请求拦截器
 server.interceptors.request.use(
-  function (config: InternalAxiosRequestConfig) {
+  function (config) {
     // 在发送请求之前做些什么
     console.log("\n在发送请求之前做些什么");
     console.log(config);
