@@ -1,43 +1,64 @@
 <script setup>
 import LoginFailureAlert from "@/views/login/components/LoginFailureAlert.vue";
+import { ref } from "vue";
 const props = defineProps({
-  title: { type: String, required: true },
-  inputConfig: { type: Array },
-  linkConfig: { type: Object },
-  loginSetLinks: { type: Array },
+  formConfig: { type: Object, required: true },
+  clickLogin: Function,
+  isLoginFailure: { type: Boolean },
+  errorMessage: { type: String },
+});
+
+const firstInputValue = defineModel("firstInput");
+const secondInputValue = defineModel("secondInput");
+
+const isAgreePolicy = ref(false); //是否同意服务协议复选框
+const agreementTip = ref(null); //DOM元素-未勾选同意协议复选框的提示框
+// 显示同意协议复选框的提示框
+const showAgreementTip = () => {
+  agreementTip.value.style.display = "block";
+};
+// 处理复选框点击事件的逻辑
+function handleCheckboxClick() {
+  agreementTip.value.style.display = "none";
+}
+defineExpose({
+  isAgreePolicy,
+  showAgreementTip,
 });
 </script>
 
 <template>
-  <h2 class="login-box-title">{{ props.title }}</h2>
-  <form class="form-wrap">
+  <h2 class="login-box-title">{{ formConfig.title }}</h2>
+  <form class="form-wrap" @submit.prevent="clickLogin">
     <dl>
       <dd>
         <input
-          :type="props.inputConfig[0].type"
-          :placeholder="props.inputConfig[0].placeholder"
           class="r-input"
+          :type="props.formConfig.firstInput.type"
+          :placeholder="props.formConfig.firstInput.placeholder"
+          v-model="firstInputValue"
         />
       </dd>
     </dl>
     <dl>
       <dd class="r-input input-auth-code">
         <input
-          :type="props.inputConfig[1].type"
-          :placeholder="props.inputConfig[1].placeholder"
           class="p-input"
+          :type="props.formConfig.secondInput.type"
+          :placeholder="props.formConfig.secondInput.placeholder"
+          v-model="secondInputValue"
         />
-        <a href="#" :class="props.linkConfig.class">{{
-          props.linkConfig.text
+        <a href="#" :class="formConfig.link.class">{{
+          formConfig.link.text
         }}</a>
       </dd>
     </dl>
     <LoginFailureAlert :is-login-failure="isLoginFailure">
-      {{ loginFailureReason }}
+      {{ errorMessage }}
     </LoginFailureAlert>
     <dl>
       <dd>
-        <button type="button" class="login-button">登录</button>
+        <button type="submit" class="login-button">登录</button>
       </dd>
     </dl>
   </form>
@@ -51,6 +72,7 @@ const props = defineProps({
       <input
         type="checkbox"
         id="checkbox-agreement-input"
+        v-model="isAgreePolicy"
         @click="handleCheckboxClick"
       />
       <label for="checkbox-agreement-input"></label>
@@ -67,9 +89,9 @@ const props = defineProps({
       <div class="login-set">
         <a
           href="javascript:void(0)"
+          v-for="item in formConfig.loginSetLinks"
           :target="item.target"
           @click="item.click"
-          v-for="item in props.loginSetLinks"
           >{{ item.text }}</a
         >
       </div>
