@@ -1,15 +1,11 @@
 <script setup>
 import { useRoute, useRouter } from "vue-router";
 import { computed, ref } from "vue";
+import { useAuthStore } from "@/stores/modules/auth.js";
+
 const router = useRouter();
 const route = useRoute();
-
-/**
- * 处理退出登录逻辑
- */
-function logout() {
-  console.log("点击了退出登录");
-}
+const authStore = useAuthStore();
 
 /**
  * 跳转到登录页面
@@ -32,8 +28,6 @@ function goToOrder() {
 const isOnAuthPage = computed(() => {
   return route.path === "/login" || route.path === "/register";
 });
-//用户的登录状态
-const isLoggedIn = ref(true);
 //下拉菜单的父元素
 const dropDownMenuParent = ref(null);
 let timer;
@@ -88,7 +82,7 @@ function hideDropDownMenu() {
         <!--    未登录状态显示登录注册按钮-->
         <li
           class="account-bar-item"
-          v-show="!isLoggedIn"
+          v-show="!authStore.isLoggedIn"
           data-login-status="Not logged"
         >
           <div class="account-bar-item">
@@ -121,7 +115,7 @@ function hideDropDownMenu() {
         <li
           ref="dropDownMenuParent"
           class="account-bar-item dropdown"
-          v-show="isLoggedIn"
+          v-show="authStore.isLoggedIn"
           data-login-status="logged"
           @mouseenter="showDropDownMenu"
           @mouseleave="hideDropDownMenu"
@@ -201,7 +195,7 @@ function hideDropDownMenu() {
                 <a
                   href="javascript:void(0)"
                   class="info-list-item"
-                  @click="logout"
+                  @click="authStore.logout"
                 >
                   <svg
                     t="1716971870580"
