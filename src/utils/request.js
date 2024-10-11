@@ -8,13 +8,12 @@ const server = axios.create({
 server.interceptors.request.use(
   function (config) {
     // 在发送请求之前做些什么
-    console.log("\n在发送请求之前做些什么");
-    console.log(config);
+    console.log("=>(request.js:14) 发送请求前");
     return config;
   },
   function (error) {
     // 对请求错误做些什么
-    console.log("对请求错误做些什么");
+    console.log("=>(request.js:20) 发送请求错误");
     return Promise.reject(error);
   },
 );
@@ -24,21 +23,21 @@ server.interceptors.response.use(
   function (response) {
     // 2xx 范围内的状态码都会触发该函数。
     // 对响应数据做点什么
-    console.log("对响应数据做点什么");
+    console.log("=>(request.js:30) 响应成功", response);
     return response.data;
   },
   function (error) {
     // 超出 2xx 范围的状态码都会触发该函数。
     // 对响应错误做点什么
-    console.log("对响应错误做点什么");
-    console.log("error:", error);
+    console.log("=>(request.js:38) 响应失败", error);
+    return Promise.reject(error.response.data.message);
 
     if (!error.response) {
       console.error("Network Error:", error.message);
       alert("网络错误，请稍后再试");
       return;
     }
-    let status = error.response.status; //获取http状态码
+    const status = error.response.status; //获取http状态码
     switch (status) {
       case 400:
         console.error(
@@ -77,7 +76,6 @@ server.interceptors.response.use(
         );
         alert("未知错误，请稍后再试");
     }
-    return Promise.reject("!!响应错误啦!!");
   },
 );
 
