@@ -1,6 +1,6 @@
 <script setup>
-import LoginFailureAlert from "@/views/login/components/LoginFailureAlert.vue";
-import { ref } from "vue";
+import Notification from "@/views/login/components/Notification.vue";
+import { ref, createVNode, render } from "vue";
 const props = defineProps({
   formConfig: { type: Object, required: true },
   clickLogin: Function,
@@ -21,7 +21,14 @@ const showAgreementTip = () => {
 function handleCheckboxClick() {
   agreementTip.value.style.display = "none";
 }
+// 渲染Notification组件
+const showNotification = (type, message) => {
+  const container = document.getElementById("Notification");
+  const notificationVNode = createVNode(Notification, { type, message });
+  render(notificationVNode, container);
+};
 defineExpose({
+  showNotification,
   isAgreePolicy,
   showAgreementTip,
 });
@@ -48,14 +55,15 @@ defineExpose({
           :placeholder="props.formConfig.secondInput.placeholder"
           v-model="secondInputValue"
         />
-        <a href="#" :class="formConfig.link.class">{{
-          formConfig.link.text
-        }}</a>
+        <a
+          href="javascript:void(0)"
+          :class="formConfig.link.class"
+          @click="formConfig.link.click"
+          >{{ formConfig.link.text }}</a
+        >
       </dd>
     </dl>
-    <LoginFailureAlert :is-login-failure="isLoginFailure">
-      {{ errorMessage }}
-    </LoginFailureAlert>
+    <div id="Notification"></div>
     <dl>
       <dd>
         <button type="submit" class="login-button">登录</button>
