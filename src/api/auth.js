@@ -12,3 +12,16 @@ export function phoneLogin(form) {
     data: form,
   });
 }
+
+/**
+ * 发送验证码接口
+ * @param phone 手机号
+ * @returns {*}
+ */
+export function sendCaptcha(phone) {
+  return request({
+    url: "/auth/send-captcha",
+    method: "post",
+    data: { phone },
+  });
+}
