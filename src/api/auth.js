@@ -25,3 +25,16 @@ export function sendCaptcha(phone) {
     data: { phone },
   });
 }
+
+/**
+ * 手机号验证码登录接口
+ * @returns {*}
+ * @param form
+ */
+export function captchaLogin(form) {
+  return request({
+    url: "/auth/login/phone-captcha",
+    method: "post",
+    data: form,
+  });
+}
