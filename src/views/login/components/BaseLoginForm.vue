@@ -1,34 +1,58 @@
 <script setup>
 import Notification from "@/views/login/components/Notification.vue";
 import { ref, createVNode, render } from "vue";
+import { emitter } from "@/utils/mitt.js";
+
 const props = defineProps({
   formConfig: { type: Object, required: true },
   clickLogin: Function,
-  isLoginFailure: { type: Boolean },
-  errorMessage: { type: String },
 });
+//   监听 disableCaptcha 禁止发送验证码 事件
+emitter.on("disableCaptcha", (a) => {
+  const actionLink = document.getElementById("action-link"); //发送验证码按钮的DOM元素
+  actionLinkIsDisabled.value = true; //禁用actionlink
+  const timer = setInterval(() => {
+    countdown.value--;
 
-const firstInputValue = defineModel("firstInput");
-const secondInputValue = defineModel("secondInput");
+    if (countdown.value <= 0) {
+      clearInterval(timer);
+      actionLink.innerText = "重发验证码";
+      actionLinkIsDisabled.value = false;
+      countdown.value = 60; // 重置倒计时
+    } else {
+      actionLink.innerText = `${countdown.value}s`;
+    }
+  }, 1000);
+});
+const countdown = ref(60); //倒计时
+const actionLinkIsDisabled = ref(false); // 控制actionlink 标签的禁用状态
 
-const isAgreePolicy = ref(false); //是否同意服务协议复选框
-const agreementTip = ref(null); //DOM元素-未勾选同意协议复选框的提示框
-// 显示同意协议复选框的提示框
-const showAgreementTip = () => {
-  agreementTip.value.style.display = "block";
-};
-// 处理复选框点击事件的逻辑
-function handleCheckboxClick() {
-  agreementTip.value.style.display = "none";
-}
 // 渲染Notification组件
 const showNotification = (type, message) => {
   const container = document.getElementById("Notification");
   const notificationVNode = createVNode(Notification, { type, message });
   render(notificationVNode, container);
 };
+//
+const firstInputValue = defineModel("firstInput");
+const secondInputValue = defineModel("secondInput");
+
+//是否同意政策协议
+const isAgreePolicy = ref(false);
+
+// 显示同意政策提示框
+const showAgreementTip = () => {
+  const agreementTip = document.getElementById("agreement-tip");
+  agreementTip.style.display = "block";
+};
+// checkbox点击后，隐藏同意政策提示框
+const handleCheckboxClick = () => {
+  const agreementTip = document.getElementById("agreement-tip");
+  agreementTip.style.display = "none";
+};
 defineExpose({
   showNotification,
+  actionLinkIsDisabled,
   isAgreePolicy,
   showAgreementTip,
 });
@@ -53,10 +77,13 @@ defineExpose({
           class="p-input"
           :type="props.formConfig.secondInput.type"
           :placeholder="props.formConfig.secondInput.placeholder"
+          :maxlength="props.formConfig.secondInput.maxLength"
           v-model="secondInputValue"
         />
         <a
+          id="action-link"
           href="javascript:void(0)"
+          :disabled="actionLinkIsDisabled"
           :class="formConfig.link.class"
           @click="formConfig.link.click"
           >{{ formConfig.link.text }}</a
@@ -72,7 +99,7 @@ defineExpose({
   </form>
 
   <div class="agreement-list">
-    <div class="agreement-tip" ref="agreementTip">
+    <div class="agreement-tip" id="agreement-tip">
       <div class="agreement-tip-arrow"></div>
       请先阅读并勾选协议
     </div>
@@ -167,6 +194,12 @@ defineExpose({
       }
       a.send-captcha {
         color: #0086f6;
+      }
+      /*禁用发送验证码样式*/
+      a[disabled="true"] {
+        cursor: not-allowed;
+        color: gray;
+        text-decoration: none;
       }
     }
     button.login-button {
