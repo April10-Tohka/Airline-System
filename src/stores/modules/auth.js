@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { phoneLogin } from "@/api/auth.js";
+import { phoneLogin, captchaLogin } from "@/api/auth.js";
 
 const ACCESS_TOKEN_KEY = "accessToken";
 export const useAuthStore = defineStore("auth", {
@@ -50,6 +50,25 @@ export const useAuthStore = defineStore("auth", {
 
       // 从 localStorage 移除 token
       localStorage.removeItem(ACCESS_TOKEN_KEY);
+    },
+
+    /**
+     *
+     */
+    loginWithPhoneCaptcha(captchaForm) {
+      console.log("=>(auth.js:60) captchaForm", captchaForm);
+      return new Promise((resolve, reject) => {
+        // 调用手机号验证码登录api接口
+        captchaLogin(captchaForm)
+          .then(this.setToken)
+          .then(() => {
+            resolve();
+          })
+          .catch((err) => {
+            console.log("=>(auth.js:68) err", err);
+            reject(err);
+          });
+      });
     },
   },
 });
