@@ -1,4 +1,4 @@
-// /home路径下的api
+// 调用携程api来获取数据
 import request from "../utils/request.js";
 
 export const getLowPriceReport = (departure) => {
