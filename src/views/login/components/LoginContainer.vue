@@ -1,13 +1,37 @@
 <script setup>
 import { defineAsyncComponent, ref, onMounted } from "vue";
 import { emitter } from "@/utils/mitt.js";
+import { ElLoading } from "element-plus";
 
 onMounted(() => {
   emitter.on("render-component", (index) => {
     //   更改要渲染哪个组件的索引
     currentIndex.value = index;
   });
+  // 监听 show-loading事件 显示加载动画
+  emitter.on("show-loading", handleShowLoading);
+  // 监听 hide-loading事件 隐藏加载动画
+  emitter.on("hide-loading", handleHideLoading);
 });
+//加载配置项
+const loadingOptions = {
+  target: "#login-box",
+  lock: true,
+  svgViewBox: "-10, -10, 50, 50",
+  background: "rgba(204, 204, 204, 0.5)",
+  svg: `
+        <path class="path" d="
+          M 30 15
+          L 28 17
+          M 25.61 25.61
+          A 15 15, 0, 0, 1, 15 30
+          A 15 15, 0, 1, 1, 27.99 7.5
+          L 15 15
+        " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
+      `,
+};
+//加载实例
+let loadingInstance;
 /**
  * 是否为扫码登录
  *  true:扫码登录 false账号登录
@@ -36,12 +60,22 @@ const renderComponents = [
     component: defineAsyncComponent(() => import("./ScanCodePanel.vue")),
   },
 ];
+
+//处理 show-loading事件的回调函数
+const handleShowLoading = () => {
+  loadingInstance = ElLoading.service(loadingOptions);
+};
+//处理 hide-loading事件的回调函数
+const handleHideLoading = () => {
+  //关闭实例
+  loadingInstance.close();
+};
 </script>
 
 <template>
   <div class="mod-box">
     <div class="login-wrap">
-      <div class="login-box">
+      <div class="login-box" id="login-box">
         <keep-alive>
           <component :is="renderComponents[currentIndex].component"></component>
         </keep-alive>

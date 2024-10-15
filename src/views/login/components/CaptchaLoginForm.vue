@@ -10,6 +10,7 @@ import { useRouter } from "vue-router";
 
 const authStore = useAuthStore();
 const router = useRouter();
+
 //子组件BaseLoginForm
 const baseLoginForm = ref(null);
 
@@ -48,6 +49,7 @@ function jumpToAccountLogin(e) {
 //登录按钮逻辑
 function buttonClick(e) {
   console.log("验证码登录的登录按钮逻辑", captchaForm.value);
+  emitter.emit("show-loading");
   const { showNotification } = baseLoginForm.value; //获取子组件暴露的变量方法
   validateFormData(captchaForm.value)
     .then(authStore.loginWithPhoneCaptcha)
@@ -56,12 +58,18 @@ function buttonClick(e) {
     })
     .catch((err) => {
       showNotification("alert", err);
+    })
+    .finally(() => {
+      setTimeout(() => {
+        emitter.emit("hide-loading");
+      }, 500);
     });
 }
 
 //请求发送验证码
 function fetchCaptcha(e) {
   console.log("请求发送验证码");
+  emitter.emit("show-loading");
   const { showNotification, actionLinkIsDisabled } = baseLoginForm.value; //获取子组件暴露的变量方法
   if (actionLinkIsDisabled) {
     //如果禁用actionlink，返回
@@ -76,6 +84,11 @@ function fetchCaptcha(e) {
     .catch((err) => {
       console.log("=>(CaptchaLoginForm.vue:69) err", err);
       showNotification("alert", err);
+    })
+    .finally(() => {
+      setTimeout(() => {
+        emitter.emit("hide-loading");
+      }, 500);
     });
 }
 //发送验证码前先校验手机号
@@ -123,6 +136,7 @@ function validateFormData(formData) {
         if (!isAgreePolicy) {
           //调用子组件暴露出的显示提示框方法
           showAgreementTip();
+          emitter.emit("hide-loading");
           return;
         }
         resolve(formData);

@@ -58,6 +58,7 @@ function jumpToRegister(e) {
 // 表单登录按钮交互逻辑
 function buttonClick(e) {
   console.log("点击了登录");
+  emitter.emit("show-loading");
   validateAccountForm(accountForm.value)
     .then(hashPassword)
     .then(authStore.loginWithPhonePassword)
@@ -67,6 +68,11 @@ function buttonClick(e) {
     .catch((err) => {
       console.log("=>(AccountLoginForm.vue:64) ", err);
       baseLoginForm.value.showNotification("alert", err);
+    })
+    .finally(() => {
+      setTimeout(() => {
+        emitter.emit("hide-loading");
+      }, 500);
     });
 }
 
@@ -89,6 +95,7 @@ function validateAccountForm(accountForm) {
         if (!isAgreePolicy) {
           //调用子组件暴露出的显示提示框方法
           showAgreementTip();
+          emitter.emit("hide-loading");
           return;
         }
         resolve(accountForm);
