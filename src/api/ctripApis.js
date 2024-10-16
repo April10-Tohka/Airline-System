@@ -13,9 +13,9 @@ export const getLowPriceReport = (departure) => {
  * 获取城市选择器面板内容
  * @returns {*}
  */
-export function getSearchBoxRecommend() {
+export function getSearchBoxRecommendCity() {
   return request({
-    url: "/ctrip/searchbox-recommend",
-    method: "get",
+    url: "/api/search-box-recommend",
+    method: "post",
   });
 }
