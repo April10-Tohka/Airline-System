@@ -1,72 +1,39 @@
 <script setup>
-import { ref, onBeforeMount, computed } from "vue";
-import { getSearchBoxRecommend } from "@/api/home.js";
-onBeforeMount(() => {
-  getSearchBoxRecommend().then((data) => {
-    recommendCity.value = data.recommendCity.cityList;
-    cityPickerTabBar.value = data.cityPickerTabBar;
-    cityMap = data.cityMap;
-  });
-});
-
-const emit = defineEmits(["blur"]);
-//显示在输入框的值,（v-model传递给组件的值）
-const cityValue = defineModel();
-//城市选择面板的显示隐藏状态 false:隐藏 true：显示
-const panelState = ref(false);
-//城市选择器标签栏
-const cityPickerTabBar = ref([]);
-//热门城市
-const recommendCity = ref([]);
-//按拼音首字母分类的城市
-let cityMap = {};
-//选中的标签项
-const activeTab = ref("热门");
-//按标签过滤后的城市
-const filterCities = computed(() => {
-  if (activeTab.value === "热门") {
-    return undefined;
-  }
-  let cities = {};
-  let activeTabLength = activeTab.value.length;
-  for (let i = 0; i < activeTabLength; i++) {
-    let firstLetterPy = activeTab.value[i]; //获取activeTab的每一个字符
-    if (["I", "U", "V"].includes(firstLetterPy)) {
-      continue;
-    }
-    cities[firstLetterPy] = cityMap[firstLetterPy];
-  }
-  return cities;
-});
-
-//控制城市选择面板的显示隐藏
-function showPanel() {
-  console.log("showPanel!!!");
-  panelState.value = true;
-}
-
-// 点击标签栏的回调函数
-function selectTab(tab) {
-  console.log("点击了标签", tab);
-  activeTab.value = tab;
-}
-//点击城市的回调函数
+import { useCities } from "@/hooks/useCities.js";
+const {
+  recommendCity,
+  cityPickerTabBar,
+  activeTab,
+  filterCities,
+  isShowSelector,
+  selectTab,
+} = useCities();
+const emit = defineEmits(["click"]);
+//选中的城市,（v-model传递给组件的值）
+const selectedCity = defineModel();
+//选择某个城市的回调函数
 function selectCity(city) {
   console.log("选择了城市", city);
-  cityValue.value = city.name;
-  panelState.value = false;
+  selectedCity.value = city.name;
+  isShowSelector.value = false;
 }
-//处理input失去焦点的回调函数
-function handleInputBlur() {
-  console.log("input失去焦点");
-  panelState.value = false;
-  emit("blur");
-}
-//处理城市选择器面板的mousedown的回调函数
-function handleMouseDown(e) {
-  console.log("handleMouseDown");
-  e.preventDefault();
-}
+
+//处理input的click事件的回调函数
+const handleInputClick = () => {
+  //默认行为:点击input，显示选择器
+  console.log("默认行为:显示选择器");
+  isShowSelector.value = true;
+  document.addEventListener("click", handleGlobalClick, true);
+  emit("click");
+};
+
+// 添加全局点击事件监听
+const handleGlobalClick = (event) => {
+  const citySelectorWrapper = document.querySelector("#city-picker-selector");
+  if (citySelectorWrapper && !citySelectorWrapper.contains(event.target)) {
+    isShowSelector.value = false;
+  }
+};
 </script>
 
 <template>
@@ -74,15 +41,15 @@ function handleMouseDown(e) {
     <slot name="input">
       <input
         class="city-picker-input"
-        @click="showPanel"
-        v-model="cityValue"
-        @blur="handleInputBlur"
+        @click="handleInputClick"
+        v-model="selectedCity"
       />
     </slot>
     <div
+      id="city-picker-selector"
       class="city-picker-selector"
-      v-show="panelState"
-      @mousedown="handleMouseDown"
+      v-show="isShowSelector"
+      @click.capture="isShowSelector = true"
     >
       <div class="city-picker-selector-left">
         <div class="tabs">
@@ -112,8 +79,8 @@ function handleMouseDown(e) {
             </li>
           </ul>
           <div
-            class="domestic-city-item"
             v-else
+            class="domestic-city-item"
             v-for="(cities, key) in filterCities"
             :key="key"
           >
