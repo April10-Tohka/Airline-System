@@ -1,5 +1,12 @@
 <script setup>
 import { useCities } from "@/hooks/useCities.js";
+import { computed } from "vue";
+const props = defineProps({
+  placeholder: {
+    type: String,
+    default: "请选择城市",
+  },
+});
 const {
   recommendCity,
   cityPickerTabBar,
@@ -8,29 +15,31 @@ const {
   isShowSelector,
   selectTab,
 } = useCities();
-const emit = defineEmits(["click"]);
+
 //选中的城市,（v-model传递给组件的值）
 const selectedCity = defineModel();
+
+const displaySelectedCity = computed(() => selectedCity.value.name);
 //选择某个城市的回调函数
 function selectCity(city) {
   console.log("选择了城市", city);
-  selectedCity.value = city.name;
+  selectedCity.value = city;
   isShowSelector.value = false;
 }
 
-//处理input的click事件的回调函数
-const handleInputClick = () => {
+//input的click事件的默认行为
+const inputDefaultBehavior = () => {
   //默认行为:点击input，显示选择器
   console.log("默认行为:显示选择器");
   isShowSelector.value = true;
   document.addEventListener("click", handleGlobalClick, true);
-  emit("click");
 };
 
 // 添加全局点击事件监听
 const handleGlobalClick = (event) => {
   const citySelectorWrapper = document.querySelector("#city-picker-selector");
   if (citySelectorWrapper && !citySelectorWrapper.contains(event.target)) {
+    //隐藏选择器面板
     isShowSelector.value = false;
   }
 };
@@ -38,13 +47,13 @@ const handleGlobalClick = (event) => {
 
 <template>
   <div id="city-picker">
-    <slot name="input">
-      <input
-        class="city-picker-input"
-        @click="handleInputClick"
-        v-model="selectedCity"
-      />
-    </slot>
+    <input
+      class="city-picker-input"
+      :value="displaySelectedCity"
+      @click="inputDefaultBehavior"
+      :placeholder="placeholder"
+    />
+
     <div
       id="city-picker-selector"
       class="city-picker-selector"
