@@ -1,13 +1,13 @@
 <script setup>
-//todo:解决CityPicker组件后，实现CityPicker的值变化时，去获取对应的低价速报内容
 import CityPicker from "@/components/CityPicker.vue";
-import { getLowPriceReport } from "@/api/home.js";
-import { onMounted, ref } from "vue";
+import { getLowPriceReport } from "@/api/ctripApis.js";
+import { onMounted, ref, watch } from "vue";
 onMounted(() => {
   getLowPriceReport(departure.value).then((data) => {
-    lowPriceReport.value = data.data;
+    lowPriceReport.value = data;
   });
 });
+
 // 低价速报内容
 const lowPriceReport = ref([]);
 //出发地
@@ -20,6 +20,11 @@ const departure = ref({
   lon: 108.8666666,
   name: "西安",
   timeZone: 8,
+});
+watch(departure, () => {
+  getLowPriceReport(departure.value).then((data) => {
+    lowPriceReport.value = data;
+  });
 });
 //卡片滑动的X值
 const slideCardsX = ref(0);
@@ -38,11 +43,7 @@ const slideCards = (X) => {
       <h1 class="low-price-report-title">低价速报</h1>
       <span>出发地:</span>
       <div class="city-filter-container">
-        <CityPicker>
-          <template #input>
-            <input placeholder="请输入出发地" class="form-input" />
-          </template>
-        </CityPicker>
+        <CityPicker placeholder="请输入出发地" v-model="departure"></CityPicker>
       </div>
     </div>
     <div class="low-price-flights-bd" id="low-price-flights-bd">
@@ -118,7 +119,7 @@ const slideCards = (X) => {
       <div
         class="low-price-flights-turn-icon low-price-flights-next-icon"
         @click="slideCards(-1197)"
-        v-show="slideCardsX != -2394"
+        v-show="slideCardsX !== -2394"
       >
         <i>></i>
       </div>
@@ -156,13 +157,16 @@ const slideCards = (X) => {
     line-height: 18px;
     margin-right: 8px;
   }
-  .city-filter-container {
-    width: 150px;
-    margin-right: 8px;
-  }
 }
-/*自定义input样式*/
-.form-input {
+.city-filter-container {
+  position: relative;
+}
+.city-filter-container:deep(#city-picker) {
+  position: absolute;
+  top: -20px;
+}
+.city-filter-container:deep(.city-picker-input) {
+  position: relative;
   box-shadow: none;
   border-radius: 4px;
   width: 156px;
@@ -171,10 +175,14 @@ const slideCards = (X) => {
   font-size: 14px;
   outline: none;
   border: 1px solid #dddddd;
+  background-color: #cce8cf;
 }
-.form-input:focus {
-  background-color: #ffffff;
+.city-filter-container:deep(.city-picker-input:focus) {
   border-color: #0086f6;
+  background-color: #ffffff;
+}
+.city-filter-container:deep(.city-picker-selector) {
+  top: 10px;
 }
 .low-price-flights-bd {
   position: relative;
