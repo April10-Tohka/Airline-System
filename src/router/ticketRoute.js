@@ -1,6 +1,6 @@
 export default [
   {
-    path: "ticket/:departureCity/:arriveCity/:departDate/:departureCityCode/:arriveCityCode",
+    path: "ticket/:departCity/:arriveCity/:departDate/:departCityCode/:arriveCityCode",
     name: "ticket",
     component: () => import("@/views/ticket/index.vue"),
     props: true,
