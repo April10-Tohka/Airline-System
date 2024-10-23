@@ -1,6 +1,19 @@
 import request from "@/utils/request.js";
 
 /**
+ * 获取航班时刻表
+ * @param flight
+ * @returns {*}
+ */
+export function getFlightSchedule(flight) {
+  return request({
+    url: "/api/getFlightSchedule",
+    method: "post",
+    data: flight,
+  });
+}
+
+/**
  * 获取所有航班信息
  * @returns {*}
  */
