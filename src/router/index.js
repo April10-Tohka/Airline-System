@@ -7,7 +7,11 @@ import login from "@/router/modules/login.js";
 import register from "@/router/modules/register.js";
 import my from "@/router/modules/my.js";
 import { beforeEach, afterEach } from "./permission.js";
-
+import homeRoute from "@/router/homeRoute.js";
+import testRoute from "@/router/testRoute.js";
+import authRoute from "@/router/authRoute.js";
+import ticketRoute from "@/router/ticketRoute.js";
+import flightQueryRoute from "@/router/flightQueryRoute.js";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -16,25 +20,13 @@ const router = createRouter({
       component: Layout,
       redirect: "home",
       children: [
-        {
-          path: "home",
-          name: "home",
-          component: () => import("@/views/home/index.vue"),
-        },
+        ...homeRoute,
+        ...testRoute,
+        ...ticketRoute,
+        ...flightQueryRoute,
       ],
     },
-    flightQuery,
-    ticket,
-    login,
-    register,
-    {
-      path: "/test",
-      name: "test",
-      component: () => import("@/test/Main.vue"),
-      meta: {
-        title: "测试路由",
-      },
-    },
+    ...authRoute,
     my,
   ],
 });
