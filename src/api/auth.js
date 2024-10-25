@@ -1,4 +1,5 @@
 import request from "@/utils/request.js";
+import { useAuthStore } from "@/stores/modules/auth.js";
 
 /**
  * 手机号密码登录接口
@@ -36,5 +37,19 @@ export function captchaLogin(form) {
     url: "/auth/login/phone-captcha",
     method: "post",
     data: form,
+  });
+}
+
+/**
+ * 调用刷新双token接口
+ * @returns {*}
+ */
+export function refreshToken() {
+  return request({
+    url: "/auth/refresh-access-token",
+    method: "post",
+    headers: {
+      RefreshToken: `Bearer ${useAuthStore().refreshToken}`,
+    },
   });
 }
