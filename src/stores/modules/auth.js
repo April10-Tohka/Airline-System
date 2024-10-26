@@ -1,10 +1,12 @@
 import { defineStore } from "pinia";
-import { phoneLogin, captchaLogin } from "@/api/auth.js";
+import { phoneLogin, captchaLogin, refreshToken } from "@/api/auth.js";
 
 const ACCESS_TOKEN_KEY = "accessToken";
+const REFRESH_TOKEN_KEY = "refreshToken";
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     accessToken: localStorage.getItem(ACCESS_TOKEN_KEY) || null, // 初始化时从 localStorage 获取 token
+    refreshToken: localStorage.getItem(REFRESH_TOKEN_KEY) || null,
     isLoggedIn: !!localStorage.getItem(ACCESS_TOKEN_KEY), // 检查是否已登录
   }),
   getters: {},
@@ -33,23 +35,27 @@ export const useAuthStore = defineStore("auth", {
 
     // 设置 accessToken 和登录状态，并存储到 localStorage
     setToken(response) {
-      const {
-        data: { accessToken },
-      } = response;
+      const { accessToken, refreshToken } = response;
       this.accessToken = accessToken;
+      this.refreshToken = refreshToken;
       this.isLoggedIn = true;
       // 持久化存储 accessToken
       localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+      return Promise.resolve("设置token完成!");
     },
 
     // 清除 token 和登录状态，并从 localStorage 移除
     logout() {
       console.log("=>(auth.js:47) 执行logout操作 ");
       this.accessToken = null;
+      this.refreshToken = null;
       this.isLoggedIn = false;
 
       // 从 localStorage 移除 token
       localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      //todo:调用后端接口清楚JWT
     },
 
     /**
@@ -66,6 +72,25 @@ export const useAuthStore = defineStore("auth", {
           })
           .catch((err) => {
             console.log("=>(auth.js:68) err", err);
+            reject(err);
+          });
+      });
+    },
+
+    //刷新 accessToken 和 refreshtoken
+    refreshAccessTokenAndRefreshToken() {
+      return new Promise((resolve, reject) => {
+        //调用刷新双token api
+        console.log("//调用刷新双token api");
+        refreshToken()
+          .then(this.setToken)
+          .then((message) => {
+            console.log("=>(auth.js:89) message", message);
+            console.log("刷新双token的操作成功后，resolve！");
+            resolve();
+          })
+          .catch((err) => {
+            console.log("=>(auth.js:94) 刷新双token失败", err);
             reject(err);
           });
       });
