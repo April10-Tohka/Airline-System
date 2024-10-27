@@ -2,11 +2,12 @@
 import { useRoute, useRouter } from "vue-router";
 import { computed, ref } from "vue";
 import { useAuthStore } from "@/stores/modules/auth.js";
+import { useUserStore } from "@/stores/modules/user1.js";
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
-
+const userStore = useUserStore();
 /**
  * 跳转到登录页面
  */
@@ -121,11 +122,8 @@ function hideDropDownMenu() {
           @mouseleave="hideDropDownMenu"
         >
           <button class="login-button dropdown-toggle">
-            <img
-              src="https://dimg04.c-ctrip.com/images/0AS1k120009l60yh36D69.jpg"
-              class="avatar"
-            />
-            <span class="logged-title">尊敬的会员</span>
+            <img :src="userStore.avatarUrl" class="avatar" />
+            <span class="logged-title">{{ userStore.userName }}</span>
             <svg
               t="1716970048735"
               class="arrow"
@@ -149,10 +147,7 @@ function hideDropDownMenu() {
             <div class="dropdown-menu-panel">
               <div class="basic-info">
                 <div class="user-avatar">
-                  <img
-                    src="https://dimg04.c-ctrip.com/images/0AS1k120009l60yh36D69.jpg"
-                    class="avatar"
-                  />
+                  <img :src="userStore.avatarUrl" class="avatar" />
                 </div>
                 <div class="name-info">
                   <a
@@ -160,7 +155,7 @@ function hideDropDownMenu() {
                     class="user-name"
                     aria-label="查看个人信息"
                   >
-                    尊敬的会员
+                    {{ userStore.userName }}
                     <svg
                       t="1716974888951"
                       class="icon"
@@ -195,7 +190,7 @@ function hideDropDownMenu() {
                 <a
                   href="javascript:void(0)"
                   class="info-list-item"
-                  @click="authStore.logout"
+                  @click="authStore.logoutAndClearJWT"
                 >
                   <svg
                     t="1716971870580"

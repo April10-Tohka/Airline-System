@@ -18,7 +18,7 @@ const router = useRouter();
 const baseLoginForm = ref(null);
 // 输入框数据模型
 const accountForm = ref({
-  phone: "13213123123",
+  phone: "13772487114",
   password: "123456abcABC!",
 });
 /**
