@@ -2,7 +2,7 @@
 import { useRoute, useRouter } from "vue-router";
 import { computed, ref } from "vue";
 import { useAuthStore } from "@/stores/modules/auth.js";
-import { useUserStore } from "@/stores/modules/user1.js";
+import { useUserStore } from "@/stores/modules/user.js";
 
 const router = useRouter();
 const route = useRoute();

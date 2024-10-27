@@ -1,72 +1,59 @@
-import { defineStore } from 'pinia'
-import {ref} from "vue";
-import {accountLoginApi,setPasswordApi} from "@/api/user.js"
-import {getToken,setToken,removeToken} from "@/utils/auth.js"
+import { defineStore } from "pinia";
+export const useUserStore = defineStore("user", {
+  state: () => ({
+    //
+    userID: JSON.parse(localStorage.getItem("user"))?.user_id || "",
+    userName: JSON.parse(localStorage.getItem("user"))?.user_name || "",
+    phone: JSON.parse(localStorage.getItem("user"))?.phone || "",
+    gender: JSON.parse(localStorage.getItem("user"))?.gender || "",
+    avatarUrl: JSON.parse(localStorage.getItem("user"))?.avatar_url || "",
+    birthdate: JSON.parse(localStorage.getItem("user"))?.birthdate || "",
+    email: JSON.parse(localStorage.getItem("user"))?.email || "",
+    createAt: JSON.parse(localStorage.getItem("user"))?.create_at || "",
+    updateAt: JSON.parse(localStorage.getItem("user"))?.update_at || "",
+    lastLogin: JSON.parse(localStorage.getItem("user"))?.last_login || "",
+  }),
+  getters: {
+    //
+  },
+  actions: {
+    //设置用户个人信息
+    setUserProfile(user) {
+      return new Promise((resolve, reject) => {
+        this.$patch({
+          userID: user.user_id,
+          userName: user.user_name,
+          phone: user.phone,
+          gender: user.gender,
+          avatarUrl: user.avatar_url,
+          birthdate: user.birthdate,
+          email: user.email,
+          createAt: user.create_at,
+          updateAt: user.update_at,
+          lastLogin: user.last_login,
+        });
+        localStorage.setItem("user", JSON.stringify(user));
+        resolve();
+      });
+    },
 
-export const useUserStore=defineStore("user",()=>{
-    const token=ref(getToken() || "");
-
-    /**
-     * 账号密码登录
-     * @param accountForm 账号密码表单数据
-     * @returns {*} Promise
-     */
-    function accountLogin(accountForm)
-    {
-        console.log("调用了UserStore里的accountLogin函数")
-        return accountLoginApi(accountForm)
-            .then(res=>{
-                console.log(" accountLoginApi返回成功！！",res);
-                //设置token
-                setToken(res.data.token);
-                token.value=res.data.token;
-                return {
-                    status:res.status,
-                    message:res.data.message
-                }
-            })
-            .catch(err=>{
-                console.log("accountLoginApi返回失败！！！",err);
-                throw err;
-            })
-    }
-
-
-    /**
-     * 注册
-     * @param regForm 注册表单数据 {phone,password}
-     */
-    function register(regForm)
-    {
-        console.log("调用了UserStore里的register函数");
-        return setPasswordApi(regForm)
-            .then(res=>{
-                console.log("setPasswordApi成功！",res);
-                //设置token
-                setToken(res.data.token);
-                token.value=res.data.token;
-                return {
-                    status:res.status,
-                    message:res.data.message
-                }
-            })
-            .catch(err=>{
-                console.log("setPasswordApi失败！！！！",err);
-                throw err;
-            })
-    }
-
-    /**
-     * 退出登录
-     * @returns {Promise<Awaited<string>>} 返回fulfilled状态的Promise
-     */
-    function logout()
-    {
-        console.log("调用了UserStore里的logout函数");
-        token.value="";
-        removeToken();
-        return Promise.resolve("OK");
-    }
-
-    return {token,accountLogin,register,logout}
-})
+    clearUserProfile() {
+      return new Promise((resolve) => {
+        localStorage.removeItem("user");
+        this.$patch({
+          userID: "",
+          userName: "",
+          phone: "",
+          gender: "",
+          avatarUrl: "",
+          birthdate: "",
+          email: "",
+          createAt: "",
+          updateAt: "",
+          lastLogin: "",
+        });
+        resolve();
+      });
+    },
+  },
+});

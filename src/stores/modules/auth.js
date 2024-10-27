@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { phoneLogin, captchaLogin, refreshToken, logout } from "@/api/auth.js";
-import { useUserStore } from "@/stores/modules/user1.js";
+import { useUserStore } from "@/stores/modules/user.js";
 
 const ACCESS_TOKEN_KEY = "accessToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
@@ -57,7 +57,7 @@ export const useAuthStore = defineStore("auth", {
       // 从 localStorage 移除 token
       localStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY);
-      logout(useUserStore().phone);
+      logout(useUserStore().phone).then(useUserStore().clearUserProfile);
     },
 
     /**
