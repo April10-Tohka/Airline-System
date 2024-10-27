@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
-import { phoneLogin, captchaLogin, refreshToken } from "@/api/auth.js";
+import { phoneLogin, captchaLogin, refreshToken, logout } from "@/api/auth.js";
+import { useUserStore } from "@/stores/modules/user1.js";
 
 const ACCESS_TOKEN_KEY = "accessToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
@@ -23,6 +24,7 @@ export const useAuthStore = defineStore("auth", {
         console.log("=>(auth.js:18) 调用手机号密码登录api接口 ");
         phoneLogin(loginForm)
           .then(this.setToken)
+          .then(useUserStore().setUserProfile)
           .then(() => {
             resolve();
           })
@@ -35,18 +37,18 @@ export const useAuthStore = defineStore("auth", {
 
     // 设置 accessToken 和登录状态，并存储到 localStorage
     setToken(response) {
-      const { accessToken, refreshToken } = response;
+      const { accessToken, refreshToken, user } = response;
       this.accessToken = accessToken;
       this.refreshToken = refreshToken;
       this.isLoggedIn = true;
       // 持久化存储 accessToken
       localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
       localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-      return Promise.resolve("设置token完成!");
+      return Promise.resolve(user);
     },
 
     // 清除 token 和登录状态，并从 localStorage 移除
-    logout() {
+    logoutAndClearJWT() {
       console.log("=>(auth.js:47) 执行logout操作 ");
       this.accessToken = null;
       this.refreshToken = null;
@@ -55,11 +57,11 @@ export const useAuthStore = defineStore("auth", {
       // 从 localStorage 移除 token
       localStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY);
-      //todo:调用后端接口清楚JWT
+      logout(useUserStore().phone);
     },
 
     /**
-     *
+     * 使用手机验证码登录
      */
     loginWithPhoneCaptcha(captchaForm) {
       console.log("=>(auth.js:60) captchaForm", captchaForm);
@@ -67,6 +69,7 @@ export const useAuthStore = defineStore("auth", {
         // 调用手机号验证码登录api接口
         captchaLogin(captchaForm)
           .then(this.setToken)
+          .then(useUserStore().setUserProfile)
           .then(() => {
             resolve();
           })
