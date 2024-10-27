@@ -53,3 +53,16 @@ export function refreshToken() {
     },
   });
 }
+
+/**
+ * 调用退出登录接口
+ * @param phone 手机号
+ * @returns {*}
+ */
+export function logout(phone) {
+  return request({
+    url: "/auth/logout",
+    method: "post",
+    data: { phone },
+  });
+}
