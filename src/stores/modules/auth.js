@@ -49,15 +49,18 @@ export const useAuthStore = defineStore("auth", {
 
     // 清除 token 和登录状态，并从 localStorage 移除
     logoutAndClearJWT() {
-      console.log("=>(auth.js:47) 执行logout操作 ");
-      this.accessToken = null;
-      this.refreshToken = null;
-      this.isLoggedIn = false;
+      return new Promise((resolve, reject) => {
+        console.log("=>(auth.js:47) 执行logout操作 ");
+        this.accessToken = null;
+        this.refreshToken = null;
+        this.isLoggedIn = false;
 
-      // 从 localStorage 移除 token
-      localStorage.removeItem(ACCESS_TOKEN_KEY);
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
-      logout(useUserStore().phone).then(useUserStore().clearUserProfile);
+        // 从 localStorage 移除 token
+        localStorage.removeItem(ACCESS_TOKEN_KEY);
+        localStorage.removeItem(REFRESH_TOKEN_KEY);
+        const userStore = useUserStore();
+        logout(userStore.phone).then(userStore.clearUserProfile).then(resolve);
+      });
     },
 
     /**
