@@ -169,6 +169,8 @@ const queryFlightSchedule = () => {
   <BookConfirmation
     v-model="showOrder"
     :ticket="selectTicket"
+    :depart="flightStore.depart.name"
+    :arrive="flightStore.arrive.name"
   ></BookConfirmation>
 </template>
 
