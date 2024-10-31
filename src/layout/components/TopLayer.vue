@@ -53,12 +53,12 @@ function hideDropDownMenu() {
 <template>
   <div class="container">
     <div class="logo">
-      <router-link to="/"></router-link>
+      <router-link to="/home"></router-link>
     </div>
     <div class="btn-wrap">
       <!--    在/login /register 路径下看到的 回到首页按钮-->
       <div class="btn-home" v-show="isOnAuthPage">
-        <router-link to="/">
+        <router-link to="/home">
           <svg
             t="1714272855561"
             class="icon"
