@@ -37,14 +37,16 @@ export function createOrder(data) {
 }
 
 /**
- * 更新订单状态
- * @param data 数据，包括订单号orderID，新的订单状态status
+ * 取消订单接口
+ * @param orderId
  * @returns {*}
  */
-export function updateOrder(data) {
+export function cancelOrderApi(orderId) {
   return request({
-    url: `/api/orders/${data.orderID}`,
-    method: "put",
-    data,
+    url: "/api/orders/cancel",
+    method: "post",
+    data: {
+      order_id: orderId,
+    },
   });
 }
