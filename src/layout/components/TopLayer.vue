@@ -142,7 +142,6 @@ function hideDropDownMenu() {
             </svg>
           </button>
           <!--    下拉菜单-->
-          <!--携程是将下拉菜单渲染了，刚好看了一点相关的文档，我可以将下拉菜单封装为组件来渲染-->
           <ul class="dropdown-menu" id="dropdown-menu">
             <div class="dropdown-menu-panel">
               <div class="basic-info">
@@ -151,7 +150,7 @@ function hideDropDownMenu() {
                 </div>
                 <div class="name-info">
                   <a
-                    href="javascript:void(0)"
+                    href="/my/profile"
                     class="user-name"
                     aria-label="查看个人信息"
                   >
