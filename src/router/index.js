@@ -12,6 +12,8 @@ import testRoute from "@/router/testRoute.js";
 import authRoute from "@/router/authRoute.js";
 import ticketRoute from "@/router/ticketRoute.js";
 import flightQueryRoute from "@/router/flightQueryRoute.js";
+import orderRoute from "@/router/orderRoute.js";
+import myRoute from "@/router/myRoute.js";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -24,10 +26,26 @@ const router = createRouter({
         ...testRoute,
         ...ticketRoute,
         ...flightQueryRoute,
+        ...orderRoute,
+        ...myRoute,
+      ],
+    },
+    {
+      path: "/",
+      component: Layout,
+      children: [
+        {
+          path: "order",
+          name: "order",
+          component: () => import("@/views/order/index.vue"),
+          meta: {
+            title: "订单路由",
+            requiresAuth: true,
+          },
+        },
       ],
     },
     ...authRoute,
-    my,
   ],
 });
 
