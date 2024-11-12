@@ -1,6 +1,9 @@
 import axios from "axios";
 import { useAuthStore } from "@/stores/modules/auth.js";
-const baseURL = "http://localhost:3000";
+const baseURL =
+  process.env.NODE_ENV === "development"
+    ? "http://8.138.9.94:3000"
+    : "http://8.138.9.94:8080";
 const server = axios.create({
   baseURL,
   timeout: 5000,
