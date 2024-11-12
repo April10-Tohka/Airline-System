@@ -17,21 +17,6 @@ const leftNavItems = [
     isSecondaryMenu: false,
   },
   {
-    path: "/my/order1",
-    text: "订单",
-    isSecondaryMenu: false,
-  },
-  {
-    path: "/my/order2",
-    text: "订单",
-    isSecondaryMenu: false,
-  },
-  {
-    path: "/my/order3",
-    text: "订单",
-    isSecondaryMenu: false,
-  },
-  {
     text: "个人中心",
     isSecondaryMenu: true,
     children: [

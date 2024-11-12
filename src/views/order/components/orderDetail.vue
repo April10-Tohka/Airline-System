@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from "vue";
 import { cancelOrderApi } from "@/api/order.js";
+import { createAlipayPaymentApi } from "@/api/pay.js";
 import { ElLoading, ElMessageBox, ElNotification } from "element-plus";
 import { getFormattedDate } from "@/utils/dateFormat.js";
 let model = defineModel();
@@ -70,11 +71,14 @@ function cancelOrder(orderId) {
 
 /**
  * 处理去支付
- * @param status
- * @param orderID
+ * @param orderId 订单号
  */
-function handlePaymentClick(status, orderID) {
-  console.log(status, orderID);
+function handlePaymentClick(orderId) {
+  //todo:点击去支付，跳转到支付页面
+  console.log(orderId);
+  createAlipayPaymentApi(orderId).then((paymentUrl) => {
+    window.open(paymentUrl, "_blank");
+  });
 }
 </script>
 
